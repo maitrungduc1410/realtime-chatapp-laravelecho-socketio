@@ -17,8 +17,6 @@ Auth::routes();
 
 Route::get('/', 'AppController@index')->middleware('auth');
 
-Route::get('/rooms', 'ChatroomController@index')->middleware('auth');
-
 Route::get('/messages', 'MessageController@index')->middleware('auth');
 
 Route::post('/messages', 'MessageController@store')->middleware('auth');
