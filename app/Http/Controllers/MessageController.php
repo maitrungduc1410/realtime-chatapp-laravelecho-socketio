@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Message;
 use Auth;
+use App\Events\MessagePosted;
 
 class MessageController extends Controller
 {
@@ -20,6 +21,8 @@ class MessageController extends Controller
         $message->content = $request->input('content', '');
 
         $message->save();
+
+        broadcast(new MessagePosted($message->load('sender')))->toOthers(); // send to others EXCEPT user who sent this message
 
         return response()->json(['message' => $message->load('sender')]);
     }
