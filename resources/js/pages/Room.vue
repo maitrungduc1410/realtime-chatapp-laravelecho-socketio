@@ -7,21 +7,21 @@
         @saveMessage="saveMessage"
       />
     </div>
-    <div class="col-md-4 chat">
+    <!-- <div class="col-md-4 chat">
       <ListUser
         :usersOnline="usersOnline"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
-import ListUser from '../components/ListUser'
+// import ListUser from '../components/ListUser'
 import SharedRoom from '../components/SharedRoom'
 
 export default {
   components: {
-    ListUser,
+    // ListUser,
     SharedRoom
   },
   data () {
