@@ -30,3 +30,7 @@ npm run watch
 ```
 
 Now access your app at `localhost:8000` and you're ready to go
+
+# Demo
+
+You can view a real demo here: https://realtime-chat.jamesisme.com

@@ -10,3 +10,15 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+laravel-echo-server.lock
+
+.docker
+
+supervisord*
+
+# ignore frontend built files
+public/js/app.js
+public/js/manifest.js
+public/js/vendor.js
+public/css/app.css
+public/mix-manifest.json
