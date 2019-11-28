@@ -17,4 +17,4 @@ if (mix.inProduction()) {
 
 mix.js('resources/js/app.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
-  .extract(['vue', 'axios', 'jquery', 'lodash', 'bootstrap'])
+  .extract(['vue', 'axios', 'jquery', 'lodash', 'bootstrap', 'vue-router'])
