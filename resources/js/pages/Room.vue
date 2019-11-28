@@ -18,6 +18,7 @@
 <script>
 // import ListUser from '../components/ListUser'
 import SharedRoom from '../components/SharedRoom'
+import $ from 'jquery'
 
 export default {
   components: {
@@ -44,6 +45,8 @@ export default {
       try {
         const response = await this.$axios.get(`/messages?room=${this.$route.params.roomId}`)
         this.messages = response.data
+
+        this.scrollToBottom(document.getElementById('shared_room'), false)
       } catch (error) {
         console.log(error)
       }
@@ -56,9 +59,26 @@ export default {
         })
 
         this.messages.push(response.data.message)
+
+        this.scrollToBottom(document.getElementById('shared_room'), true)
       } catch (error) {
         console.log(error)
       }
+    },
+    scrollToBottom (element, animate = true) {
+      if (!element) {
+        return
+      }
+      this.$nextTick(() => { // run after Vue finishes updating the DOM
+        if (animate) {
+          $(element).animate(
+            { scrollTop: element.scrollHeight },
+            { duration: 'medium', easing: 'swing' }
+          )
+        } else {
+          $(element).scrollTop(element.scrollHeight)
+        }
+      })
     }
   }
 }
