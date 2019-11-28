@@ -86,8 +86,9 @@ Run the following command to start application:
 ```
 docker-compose up -d --build
 ```
-Now we need to migrate and seed database. Run command:
+Now we need to generate project's key migrate and seed database. Run command:
 ```
+docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan migrate --seed
 ```
 
