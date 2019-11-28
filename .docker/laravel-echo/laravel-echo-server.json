@@ -1,12 +1,7 @@
 {
-	"authHost": "http://localhost:8000",
+	"authHost": "http://localhost",
 	"authEndpoint": "/broadcasting/auth",
-	"clients": [
-		{
-			"appId": "3e7bfb24e58b6963",
-			"key": "62cd7c7f5077a786bba77f76c877c7b9"
-		}
-	],
+	"clients": [],
 	"database": "redis",
 	"databaseConfig": {
 		"redis": {},
@@ -19,10 +14,15 @@
 	"port": "6001",
 	"protocol": "http",
 	"socketio": {},
+	"secureOptions": 67108864,
 	"sslCertPath": "",
 	"sslKeyPath": "",
 	"sslCertChainPath": "",
 	"sslPassphrase": "",
+	"subscribers": {
+		"http": true,
+		"redis": true
+	},
 	"apiOriginAllow": {
 		"allowCors": false,
 		"allowOrigin": "",

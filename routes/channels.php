@@ -16,5 +16,6 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('room.{id}', function ($user, $id) {
+    $user->new_messages = 0;
     return $user;
 });

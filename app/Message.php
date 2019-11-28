@@ -8,10 +8,14 @@ use App\Chatroom;
 
 class Message extends Model
 {
-    protected $fillable = ['room', 'sender', 'content'];
+    protected $fillable = ['room', 'sender', 'receiver', 'content'];
 
     public function sender () {
         return $this->belongsTo(User::class, 'sender');
+    }
+
+    public function receiver () {
+        return $this->belongsTo(User::class, 'receiver');
     }
 
     public function room () {

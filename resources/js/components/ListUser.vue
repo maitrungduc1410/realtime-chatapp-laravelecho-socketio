@@ -23,6 +23,12 @@
             </div>
             <div class="user_info">
               <span>{{ user.name }} {{ user.id === $root.user.id ? '(You)' : '' }}</span>
+              <span
+                class="badge badge-danger font-12px"
+                v-if="user.new_messages"
+              >
+                {{ user.new_messages }}
+              </span>
               <p>{{ user.email }}</p>
             </div>
           </div>

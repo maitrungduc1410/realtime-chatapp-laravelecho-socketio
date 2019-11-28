@@ -27,7 +27,11 @@
 </template>
 
 <script>
+import Footer from './components/Footer'
 export default {
+  components: {
+    Footer
+  },
   data () {
     return {
       csrfToken: document.head.querySelector('meta[name="csrf-token"]').content
