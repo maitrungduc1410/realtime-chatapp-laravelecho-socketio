@@ -313,8 +313,8 @@ html {
   width: 40px;
   height: 40px;
   span {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
   }
 }
 
