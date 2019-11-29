@@ -2,17 +2,17 @@
 
 namespace App;
 
-class rColor
+class RandomColor
 {
     protected static $hue;
     protected static $initiated = false;
 
     protected static function initiate()
     {
-        if (!rColor::$initiated)
+        if (!RandomColor::$initiated)
         {
-            rColor::$hue = mt_rand() / mt_getrandmax();
-            rColor::$initiated = true;
+            RandomColor::$hue = mt_rand() / mt_getrandmax();
+            RandomColor::$initiated = true;
         }
     }
 
@@ -54,12 +54,12 @@ class rColor
 
     public static function generate($hex = true, $saturation = 0.5, $value = 0.95)
     {
-        rColor::initiate();
+        RandomColor::initiate();
 
         $goldenRatio = 0.618033988749895;
 
-        rColor::$hue += $goldenRatio;
-        rColor::$hue = fmod(rColor::$hue, 1);
+        RandomColor::$hue += $goldenRatio;
+        RandomColor::$hue = fmod(RandomColor::$hue, 1);
 
         if(!is_numeric($saturation))
             $saturation = 0.5;
@@ -67,12 +67,12 @@ class rColor
         if(!is_numeric($value))
             $value = 0.95;
 
-        $rgb = rColor::HSVtoRGB(rColor::$hue , $saturation, $value);
+        $rgb = RandomColor::HSVtoRGB(RandomColor::$hue , $saturation, $value);
 
         if($hex)
-            return "#" . rColor::padHex(dechex($rgb[0]))
-                       . rColor::padHex(dechex($rgb[1]))
-                       . rColor::padHex(dechex($rgb[2]));
+            return "#" . RandomColor::padHex(dechex($rgb[0]))
+                       . RandomColor::padHex(dechex($rgb[1]))
+                       . RandomColor::padHex(dechex($rgb[2]));
         else
             return $rgb;
     }
