@@ -14,6 +14,13 @@
         <link rel="stylesheet" href="{{ asset('css/font_awesome/all.min.css') }}">
         <link rel="icon favicon" href="{{ asset('images/favicon.png') }}">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700,700i&display=swap" rel="stylesheet">
+        
+        <style>
+            body {
+                font-family: 'Open Sans', sans-serif !important;
+            }
+        </style>
     </head>
     <body>
         <div id="app" class="h-100"></div>
