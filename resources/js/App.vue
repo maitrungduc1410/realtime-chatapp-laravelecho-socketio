@@ -296,12 +296,6 @@ html {
       border-radius: 15px !important;
       max-width: 165px;
     }
-    .img_cont_msg {
-      img {
-        width: 30px;
-        height: 30px;
-      }
-    }
   }
   .text-input {
     input {
@@ -314,6 +308,16 @@ html {
     }
   }
 }
+
+.img_cont_msg {
+  width: 40px;
+  height: 40px;
+  span {
+    width: 35px;
+    height: 35px;
+  }
+}
+
 @keyframes wave {
   0%,
   60%,
