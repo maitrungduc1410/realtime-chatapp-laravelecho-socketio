@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 app-container">
-    <div class="container position-relative chat-container">
+    <div class="h-100 container position-relative chat-container">
       <div class="d-flex app-header">
         <router-link to="/" class="flex-grow-1" style="text-decoration: none;">
           <h2 class="text-white">
@@ -59,9 +59,6 @@ html {
     .btn-logout {
       margin-right: 30px;
     }
-  }
-  .chat-container {
-    height: 95%
   }
 }
 .chat {

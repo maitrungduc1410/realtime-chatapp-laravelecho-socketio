@@ -98,4 +98,7 @@ export default {
 </script>
 
 <style>
+.private-message-container {
+  z-index: 1;
+}
 </style>

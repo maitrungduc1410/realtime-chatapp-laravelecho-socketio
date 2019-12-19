@@ -1,5 +1,5 @@
 <template>
-  <footer id="footer">
+  <footer id="footer" class="w-100">
     <div>
         This demo using Laravel, VueJS, Laravel Echo, Redis, SocketIO.
         <a href="https://github.com/maitrungduc1410/realtime-chat/tree/full-app" target="_blank">
@@ -22,7 +22,16 @@ footer {
   background: #1c5986;
   color: white;
   text-align: center;
+  position: absolute;
+  bottom: 0;
 }
+
+@media only screen and (max-width: 768px) {
+  footer {
+    position: initial;
+  }
+}
+
 footer a {
   color: #00ffe9;
 }
