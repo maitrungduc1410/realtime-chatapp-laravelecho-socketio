@@ -4,6 +4,9 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
+use App\Events\BotNotification;
+use App\Chatroom;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,8 +27,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->call(function () {
+            $chatrooms = Chatroom::all();
+
+            foreach($chatrooms as $cr) {
+                $message = 'Hello from Bot';
+                $room = strval($cr->id);
+                broadcast(new BotNotification($message, $room));
+            }
+
+            Log::info('Bot notification sent');
+        })->everyMinute();
     }
 
     /**

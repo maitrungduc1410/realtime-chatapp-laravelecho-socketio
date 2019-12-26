@@ -7,9 +7,6 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
@@ -34,7 +31,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: wget --quiet --tries=1 --spider https://realtime-chat.jamesisme.com || exit 1z
+      test: wget --quiet --tries=1 --spider http://localhost || exit 1z
       interval: 30s
       timeout: 10s
       retries: 5
@@ -56,8 +53,6 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: rootpass
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
     volumes:
       - .docker/data/db:/var/lib/mysql/
       - .docker/mysql/my.cnf:/etc/mysql/my.cnf

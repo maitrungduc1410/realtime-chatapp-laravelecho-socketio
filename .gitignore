@@ -25,3 +25,5 @@ laravel-echo-server.lock
 /public/js/vendor.js
 /public/css/app.css
 /public/mix-manifest.json
+
+horizon.log

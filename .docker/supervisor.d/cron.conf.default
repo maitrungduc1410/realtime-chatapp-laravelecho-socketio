@@ -1,6 +1,7 @@
-[program:php-fpm]
+[program:cron-job]
 process_name=%(program_name)s
-command=php-fpm -F
+command=crond -f
+user=root           ; crond should be started as root at all times
 autostart=true
 autorestart=true
 numprocs=1

@@ -77,6 +77,18 @@ export default {
           this.publicMessages.push(e.message)
           this.scrollToBottom(document.getElementById('shared_room'), true)
         })
+        .listen('BotNotification', e => {
+          this.publicMessages.push({
+            content: e.message,
+            room: e.room,
+            id: Date.now(),
+            created_at: Date.now(),
+            type: 'bot'
+          })
+
+          this.scrollToBottom(document.getElementById('shared_room'), true)
+        })
+
       this.$Echo.private(`room.${this.$root.user.id}`) // listen to user's own room (in order to receive all private messages from other users)
         .listen('MessagePosted', e => {
           if (this.privateChat.selectedReceiver && e.message.sender.id === this.privateChat.selectedReceiver.id) {

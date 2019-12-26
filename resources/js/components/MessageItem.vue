@@ -1,5 +1,10 @@
 <template>
-  <div class="d-flex justify-content-end mb-4" v-if="message.sender.id === $root.user.id">
+  <div class="d-flex justify-content-end mb-4" v-if="message.type === 'bot'">
+    <div class="msg_container_send bot-notification" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
+      Bot: {{ message.content }}
+    </div>
+  </div>
+  <div class="d-flex justify-content-end mb-4" v-else-if="message.sender.id === $root.user.id">
     <div class="msg_container_send" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
       {{ message.content }}
     </div>
@@ -35,5 +40,10 @@ export default {
 </script>
 
 <style>
-
+.bot-notification {
+  max-width: 100% !important;
+  width: 100%;
+  border-radius: 4px;
+  background-color: #043244;
+}
 </style>
