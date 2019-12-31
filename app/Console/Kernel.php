@@ -28,10 +28,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
+            $quotes = [
+                'Detect typing and Seen message are available in Private Chat. Select an user from The right Sidebar and start Private Chat',
+                'You can react to other user\'s message (Love, Haha, Angry,...)'
+            ];
+
             $chatrooms = Chatroom::all();
 
             foreach($chatrooms as $cr) {
-                $message = 'Hello from Bot';
+                $randIndex = array_rand($quotes);
+                $message = $quotes[$randIndex];
                 $room = strval($cr->id);
                 broadcast(new BotNotification($message, $room));
             }

@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
 use App\Chatroom;
+use App\Reaction;
 
 class Message extends Model
 {
@@ -20,5 +21,9 @@ class Message extends Model
 
     public function room () {
         return $this->belongsTo(Chatroom::class, 'room');
+    }
+
+    public function reactions () {
+        return $this->hasMany(Reaction::class, 'msg_id');
     }
 }

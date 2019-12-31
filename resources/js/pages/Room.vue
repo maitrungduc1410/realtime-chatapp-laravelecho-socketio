@@ -4,7 +4,13 @@
       <SharedRoom
         :messages="publicMessages"
         :currentRoom="currentRoom"
+        :selectedMessage="selectedMessage"
+        :isShowEmoji="isShowEmoji"
+        :emojiCoordinates="emojiCoordinates"
         @saveMessage="saveMessage"
+        @showEmoji="showEmoji"
+        @hideEmoji="hideEmoji"
+        @selectEmoji="selectEmoji"
       />
     </div>
     <div class="col-md-4 chat">
@@ -17,9 +23,15 @@
       v-if="privateChat.selectedReceiver"
       :privateChat="privateChat"
       :messages="privateMessages"
+      :selectedMessage="selectedMessage"
+      :isShowEmoji="isShowEmoji"
+      :emojiCoordinates="emojiCoordinates"
       @closePrivateChat="closePrivateChat"
       @saveMessage="saveMessage"
       @focusPrivateInput="focusPrivateInput"
+      @showEmoji="showEmoji"
+      @hideEmoji="hideEmoji"
+      @selectEmoji="selectEmoji"
     />
   </div>
 </template>
@@ -49,8 +61,15 @@ export default {
         hasNewMessage: false,
         isSeen: null, // null: no new message, false: a message is waiting to be seen, true: user seen message (should display "Seen at..")
         seenAt: '',
-        roomId: ''
-      }
+        roomId: '',
+        isOnline: true
+      },
+      emojiCoordinates: {
+        x: 0,
+        y: 0
+      },
+      isShowEmoji: false,
+      selectedMessage: null
     }
   },
   created () {
@@ -66,11 +85,19 @@ export default {
         })
         .joining((user) => {
           this.usersOnline.push(user)
+
+          if (this.privateChat.selectedReceiver && this.privateChat.selectedReceiver.id === user.id) {
+            this.privateChat.isOnline = true
+          }
         })
         .leaving((user) => {
           const index = this.usersOnline.findIndex(item => item.id === user.id)
           if (index > -1) {
             this.usersOnline.splice(index, 1)
+          }
+
+          if (this.privateChat.selectedReceiver && this.privateChat.selectedReceiver.id === user.id) {
+            this.privateChat.isOnline = false
           }
         })
         .listen('MessagePosted', e => {
@@ -87,6 +114,9 @@ export default {
           })
 
           this.scrollToBottom(document.getElementById('shared_room'), true)
+        })
+        .listen('MessageReacted', e => {
+          this.onOtherUserReaction(e.reaction, 'share')
         })
 
       this.$Echo.private(`room.${this.$root.user.id}`) // listen to user's own room (in order to receive all private messages from other users)
@@ -152,6 +182,8 @@ export default {
       if (this.$root.user.id === receiver.id) {
         return
       }
+      this.resetPrivateChat()
+
       const roomId = this.$root.user.id > receiver.id ? `${receiver.id}__${this.$root.user.id}` : `${this.$root.user.id}__${receiver.id}`
       this.privateChat.selectedReceiver = receiver
       this.privateChat.isPrivateChatExpand = true
@@ -168,11 +200,13 @@ export default {
             this.scrollToBottom(document.getElementById('private_room'), true)
           }
         })
+        .listen('MessageReacted', e => {
+          this.onOtherUserReaction(e.reaction, 'private')
+        })
       await this.getMessages(roomId) // need to await until messages are loaded first then we are able to focus the input below
     },
     closePrivateChat () {
-      this.privateChat.selectedReceiver = null
-      this.privateChat.isPrivateChatExpand = false
+      this.resetPrivateChat()
     },
     scrollToBottom (element, animate = true) {
       if (!element) {
@@ -204,6 +238,81 @@ export default {
         const index = this.usersOnline.findIndex(item => item.id === this.privateChat.selectedReceiver.id)
         if (index > -1) {
           this.usersOnline[index].new_messages = 0
+        }
+      }
+    },
+    resetPrivateChat () { // reset private chat when change to another user
+      this.privateMessages = []
+      this.privateChat.selectedReceiver = null
+      this.privateChat.isPrivateChatExpand = false
+      this.privateChat.isSelectedReceiverTyping = false
+      this.privateChat.hasNewMessage = false
+      this.privateChat.isSeen = null // null: no new message, false: a message is waiting to be seen, true: user seen message (should display "Seen at..")
+      this.privateChat.seenAt = ''
+      this.privateChat.roomId = ''
+      this.privateChat.isOnline = true
+    },
+    showEmoji (message, event) {
+      this.emojiCoordinates.x = event.clientX
+      this.emojiCoordinates.y = event.clientY
+      this.isShowEmoji = true
+
+      this.selectedMessage = message
+    },
+    hideEmoji () {
+      this.isShowEmoji = false
+      this.selectedMessage = null
+    },
+    async selectEmoji (emoji) {
+      try {
+        const response = await this.$axios.post('/reactions', {
+          msg_id: this.selectedMessage.id,
+          user_id: this.$root.user.id,
+          emoji_id: emoji.id
+        })
+
+        const index = this.selectedMessage.reactions.findIndex(item => item.user_id === this.$root.user.id)
+
+        if (index > -1) {
+          const reaction = this.selectedMessage.reactions[index]
+          if (emoji.id === reaction.emoji_id) { // deactive
+            this.selectedMessage.reactions.splice(index, 1)
+          } else {
+            reaction.emoji_id = emoji.id
+          }
+        } else { // user first react
+          const { reaction } = response.data
+          this.selectedMessage.reactions.push({ ...reaction, user: this.$root.user })
+        }
+
+        this.hideEmoji()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    onOtherUserReaction (reaction, room) {
+      let listMessage = []
+      if (room === 'share') {
+        listMessage = this.publicMessages
+      } else {
+        listMessage = this.privateMessages
+      }
+
+      const messageIndex = listMessage.findIndex(m => m.id === reaction.msg_id)
+
+      if (messageIndex > -1) {
+        const message = listMessage[messageIndex]
+        const index = message.reactions.findIndex(item => item.user.id === reaction.user.id)
+
+        if (index > -1) {
+          const r = message.reactions[index]
+          if (reaction.emoji_id === r.emoji_id) { // deactive
+            message.reactions.splice(index, 1)
+          } else {
+            r.emoji_id = reaction.emoji_id
+          }
+        } else {
+          message.reactions.push({ ...reaction, user: reaction.user })
         }
       }
     }

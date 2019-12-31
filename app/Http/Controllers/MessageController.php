@@ -10,7 +10,7 @@ use App\Events\MessagePosted;
 class MessageController extends Controller
 {
     public function index (Request $request) {
-        $messages = Message::with(['sender', 'receiver'])->where('room', $request->query('room', ''))->orderBy('created_at', 'asc')->get();
+        $messages = Message::with(['sender', 'receiver', 'reactions.user'])->where('room', $request->query('room', ''))->orderBy('created_at', 'asc')->get();
         return $messages;
     }
 
@@ -29,8 +29,8 @@ class MessageController extends Controller
 
         $message->save();
 
-        broadcast(new MessagePosted($message->load('sender')))->toOthers(); // send to others EXCEPT user who sent this message
+        broadcast(new MessagePosted($message->load(['sender', 'reactions.user'])))->toOthers(); // send to others EXCEPT user who sent this message
 
-        return response()->json(['message' => $message->load('sender')]);
+        return response()->json(['message' => $message->load(['sender', 'reactions.user'])]);
     }
 }

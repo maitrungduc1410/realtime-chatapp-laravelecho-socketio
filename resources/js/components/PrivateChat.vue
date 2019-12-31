@@ -11,7 +11,7 @@
     >
       <div class="img_cont">
         <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img" style="width: 40px; height: 40px;">
-        <span class="online_icon online" style="bottom: -3px;"></span>
+        <span class="online_icon" :class="privateChat.isOnline ? 'online' : 'offline'" style="bottom: -3px;"></span>
       </div>
       <div class="user_info">
         <span style="color: black;">{{ privateChat.selectedReceiver.name }}</span>
@@ -22,7 +22,12 @@
       </button>
     </div>
     <div class="private-chat-body p-2" v-if="privateChat.isPrivateChatExpand" id="private_room">
-      <MessageItem v-for="message in messages" :key="message.id" :message="message" />
+      <MessageItem
+        v-for="message in messages"
+        :key="message.id"
+        :message="message"
+        @showEmoji="showEmoji"
+      />
       <div class="d-flex justify-content-end" v-if="privateChat.isSeen">
         <i class="font-12px">Seen {{ privateChat.seenAt | toLocalTime }}</i>
       </div>
@@ -50,12 +55,21 @@
         @input="onInputPrivateChange"
       >
     </div>
+    <Emoji
+      :emojiCoordinates="emojiCoordinates"
+      :isShow="isShowEmoji"
+      :selectedMessage="selectedMessage"
+      @hideEmoji="hideEmoji"
+      @selectEmoji="selectEmoji"
+    />
   </div>
 </template>
 
 <script>
 import MessageItem from './MessageItem'
 import { throttle } from 'lodash'
+import Emoji from './Emoji'
+
 export default {
   props: {
     privateChat: {
@@ -65,10 +79,20 @@ export default {
     messages: {
       type: Array,
       required: true
+    },
+    selectedMessage: {
+      type: Object
+    },
+    isShowEmoji: {
+      type: Boolean
+    },
+    emojiCoordinates: {
+      type: Object
     }
   },
   components: {
-    MessageItem
+    MessageItem,
+    Emoji
   },
   data () {
     return {
@@ -89,7 +113,16 @@ export default {
           user: this.$root.user,
           isTyping: this.inputMessage.length > 0
         })
-    }, 2000) // keep tell other that we're typing because other user may close the private chat window then re open during we're typing
+    }, 2000), // keep tell other that we're typing because other user may close the private chat window then re open during we're typing
+    showEmoji (message, event) {
+      this.$emit('showEmoji', message, event)
+    },
+    hideEmoji () {
+      this.$emit('hideEmoji')
+    },
+    selectEmoji (emoji) {
+      this.$emit('selectEmoji', emoji)
+    }
   },
   beforeDestroy () {
     this.$Echo.leave(`room.${this.privateChat.roomId}`)

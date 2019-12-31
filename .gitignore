@@ -27,3 +27,4 @@ laravel-echo-server.lock
 /public/mix-manifest.json
 
 horizon.log
+laravel-echo-server.json

@@ -17,6 +17,7 @@ const app = new Vue({
   data: {
     user: window.__app__.user, // we always have user if they login as we return user object in app.blade.php
     rooms: window.__app__.rooms,
+    emojis: window.__app__.emojis,
     appName: 'Realtime Chat | Laravel, VueJS, Redis, Laravel Echo, SocketIO'
   }
 }).$mount('#app')
