@@ -21,9 +21,9 @@ This app contains following features:
 <img src="./public/intro_images/seen.png" width="200" alt="Seen message">
 <img src="./public/intro_images/message_color.png" width="200" alt="Message color">
 <img src="./public/intro_images/celebrate.png" width="400" alt="Celebrate">
+<img src="./public/intro_images/horizon.png" width="400" alt="Horizon">
 </div>
 
-![Horizon](./public/intro_images/horizon.png "Horizon")
 # Installation
 ## Prerequisite
 Check if you have `redis` installed, by running command: `redis-cli`
