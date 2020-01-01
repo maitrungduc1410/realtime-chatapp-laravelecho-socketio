@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "axios": "^0.19",
+        "canvas-confetti": "^1.0.2",
         "cross-env": "^5.1",
         "jquery": "^3.2",
         "laravel-echo": "^1.6.1",

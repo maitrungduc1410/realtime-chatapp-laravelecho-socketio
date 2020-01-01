@@ -20,7 +20,9 @@
         </div>
       </div>
 
-      <router-view />
+      <transition :name="transitionName" mode="out-in" appear>
+        <router-view />
+      </transition>
     </div>
     <Footer />
   </div>
@@ -34,7 +36,17 @@ export default {
   },
   data () {
     return {
-      csrfToken: document.head.querySelector('meta[name="csrf-token"]').content
+      csrfToken: document.head.querySelector('meta[name="csrf-token"]').content,
+      transitionName: 'fade'
+    }
+  },
+  watch: {
+    '$route.name': function (newValue, oldValue) {
+      if (newValue === 'room') {
+        this.transitionName = 'slide-left'
+      } else {
+        this.transitionName = 'slide-right'
+      }
     }
   }
 }
@@ -334,6 +346,7 @@ html {
     margin-right: 1px;
     background: white;
     animation: wave 1.3s linear infinite;
+    margin-bottom: 3px;
     &:nth-child(2) {
       animation-delay: -1.1s;
     }
@@ -363,4 +376,36 @@ html {
     background: #2e7fd7;
   }
 }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.slide {
+  &-left, &-right {
+    &-enter, &-leave {
+      &-active {
+        transition: all .5s cubic-bezier(.55,0,.1,1);
+      }
+    }
+  }
+}
+
+.slide {
+  &-left-enter, &-right-leave-active {
+    opacity: 0;
+    transform: translate(30px, 0);
+  }
+}
+
+.slide {
+  &-left-leave-active, &-right-enter {
+    opacity: 0;
+    transform: translate(-30px, 0);
+  }
+}
+
 </style>

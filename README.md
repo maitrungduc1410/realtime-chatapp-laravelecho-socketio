@@ -9,6 +9,8 @@ This app contains following features:
 - Notification to user on receiving message (both on side bar and on Topbar of browser)
 - Bot scheduled message
 - Message reaction like Facebook Messenger (Realtime notify others on reaction)
+- Celebration animation
+- Change message color (private chat)
 ## Screenshots
 
 ![Realtime chat app](./public/intro_images/overview.png "App overview")
@@ -17,6 +19,8 @@ This app contains following features:
 <img src="./public/intro_images/reaction.png" width="200" alt="Message Reaction">
 <img src="./public/intro_images/typing.png" width="200" alt="Typing">
 <img src="./public/intro_images/seen.png" width="200" alt="Seen message">
+<img src="./public/intro_images/message_color.png" width="200" alt="Message color">
+<img src="./public/intro_images/celebrate.png" width="400" alt="Celebrate">
 </div>
 
 ![Horizon](./public/intro_images/horizon.png "Horizon")

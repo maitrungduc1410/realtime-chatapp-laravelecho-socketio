@@ -2,6 +2,7 @@
 import App from './App.vue'
 import router from './router'
 import './filters'
+import './services/confetti'
 require('./bootstrap')
 
 window.Vue = require('vue')

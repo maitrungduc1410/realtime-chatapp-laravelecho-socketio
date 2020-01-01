@@ -17,6 +17,17 @@
         <span style="color: black;">{{ privateChat.selectedReceiver.name }}</span>
         <!-- <p style="color: black;" class="mb-0">{{ privateChat.selectedReceiver.name }} left 50 mins ago</p> -->
       </div>
+      <div class="color-picker">
+        <i
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Message Color"
+          class="fas fa-circle"
+          @click.stop="toggleColorPicker"
+          style="cursor: pointer;"
+          :style="{'color': msgColor}"
+        ></i>
+      </div>
       <button class="btn-close" @click="$emit('closePrivateChat')">
         <i class="fal fa-times"></i>
       </button>
@@ -26,6 +37,7 @@
         v-for="message in messages"
         :key="message.id"
         :message="message"
+        :msgColor="msgColor"
         @showEmoji="showEmoji"
       />
       <div class="d-flex justify-content-end" v-if="privateChat.isSeen">
@@ -62,6 +74,15 @@
       @hideEmoji="hideEmoji"
       @selectEmoji="selectEmoji"
     />
+
+    <transition name="fade">
+    <ColorPickerModal
+      v-if="isShowColorPicker"
+      :isShow="isShowColorPicker"
+      @hide="toggleColorPicker"
+      @selectColor="selectColor"
+    />
+    </transition>
   </div>
 </template>
 
@@ -69,6 +90,8 @@
 import MessageItem from './MessageItem'
 import { throttle } from 'lodash'
 import Emoji from './Emoji'
+import ColorPickerModal from './ColorPickerModal'
+import $ from 'jquery'
 
 export default {
   props: {
@@ -92,15 +115,29 @@ export default {
   },
   components: {
     MessageItem,
-    Emoji
+    Emoji,
+    ColorPickerModal
   },
   data () {
     return {
-      inputMessage: ''
+      inputMessage: '',
+      isShowColorPicker: false,
+      msgColor: '#42e274'
+    }
+  },
+  created () {
+    const msgColor = localStorage.getItem('msgColor')
+
+    if (msgColor) {
+      this.msgColor = msgColor
     }
   },
   mounted () {
     this.$emit('focusPrivateInput')
+
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
   },
   methods: {
     saveMessage () {
@@ -122,6 +159,14 @@ export default {
     },
     selectEmoji (emoji) {
       this.$emit('selectEmoji', emoji)
+    },
+    toggleColorPicker () {
+      this.isShowColorPicker = !this.isShowColorPicker
+    },
+    selectColor (value) {
+      localStorage.setItem('msgColor', value)
+      this.msgColor = value
+      this.toggleColorPicker()
     }
   },
   beforeDestroy () {
@@ -130,8 +175,23 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .private-message-container {
   z-index: 1;
+}
+.color-picker {
+  position: absolute;
+  right: 45px;
+  top: 17px;
+  i {
+    font-size: 22px;
+  }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

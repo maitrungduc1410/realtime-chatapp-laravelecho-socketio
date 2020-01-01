@@ -13,8 +13,14 @@
         <i class="fal fa-grin-alt" data-toggle="tooltip" data-placement="top" title="React" @click="showEmoji"></i>
       </div>
     </div>
-    <div class="msg_container_send" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
-      {{ message.content }}
+    <div
+      class="msg_container_send"
+      data-toggle="tooltip"
+      data-placement="top"
+      :title="message.created_at | toLocalTime"
+      :style="message.receiver ? `background-color: ${msgColor}` : ''"
+    >
+      <div v-html="highlight"></div>
       <Reaction
         v-if="message.reactions.length"
         :reactions="message.reactions"
@@ -32,8 +38,8 @@
     <div class="img_cont_msg bg-white rounded-circle d-flex justify-content-center align-items-center" data-toggle="tooltip" data-placement="top" :title="`${message.sender.name} (${message.sender.email})`">
       <span class="rounded-circle d-flex justify-content-center align-items-center" :style="`background-color: ${message.sender.color}`">{{ message.sender.name[0].toUpperCase() }}</span>
     </div>
-    <div class="msg_container" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
-      {{ message.content }}
+    <div class="msg_container" :class="{'bg-gray': message.receiver}" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
+      <div v-html="highlight"></div>
       <Reaction
         v-if="message.reactions.length"
         :reactions="message.reactions"
@@ -58,6 +64,9 @@ export default {
   props: {
     message: {
       required: true
+    },
+    msgColor: {
+      type: String
     }
   },
   mounted () {
@@ -68,6 +77,17 @@ export default {
   methods: {
     showEmoji (event) {
       this.$emit('showEmoji', this.message, event)
+    }
+  },
+  computed: {
+    highlight () {
+      if (this.message.receiver) { // ignore if this is private message
+        return this.message.content
+      }
+      const content = this.message.content
+      return content.replace(new RegExp('chuc mung|congratulations|congrats', 'gi'), match => {
+        return '<span class="highlightText">' + match + '</span>'
+      })
     }
   }
 }
@@ -109,4 +129,14 @@ export default {
   }
 }
 
+.highlightText {
+  color: #f1765e;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bg-gray {
+  background-color: #f1f0f0;
+  color: #444950;
+}
 </style>

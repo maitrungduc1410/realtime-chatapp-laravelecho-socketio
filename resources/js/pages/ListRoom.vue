@@ -42,7 +42,8 @@ export default {
   },
   computed: {
     filteredRooms () {
-      return this.$root.rooms.filter(item => item.name.toLowerCase().includes(this.searchQuery.toLowerCase()))
+      const searchQueryClean = this.searchQuery.trim().toLowerCase()
+      return this.$root.rooms.filter(item => item.name.toLowerCase().includes(searchQueryClean))
     }
   }
 }

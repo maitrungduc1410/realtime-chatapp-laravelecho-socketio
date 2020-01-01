@@ -30,7 +30,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $quotes = [
                 'Detect typing and Seen message are available in Private Chat. Select an user from The right Sidebar and start Private Chat',
-                'You can react to other user\'s message (Love, Haha, Angry,...)'
+                'You can react to other user\'s message (Love, Haha, Angry,...)',
+                'Try type \'Chuc mung\', \'Congrats\' or \'Congratulations\' to see animation',
+                'You can change your message color in Private chat'
             ];
 
             $chatrooms = Chatroom::all();
