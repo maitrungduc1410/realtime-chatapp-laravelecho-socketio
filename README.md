@@ -13,13 +13,11 @@ This app contains following features:
 
 ![Realtime chat app](./public/intro_images/overview.png "App overview")
 
-![Message Reaction](./public/intro_images/reaction.png "Message Reaction" )
-
-![Typing](./public/intro_images/typing.png "Typing")
-
-![Seen message](./public/intro_images/seen.png "Seen message")
-
-![Bot schedule message](./public/intro_images/bot_schedule_message.png "Bot schedule message")
+<div class="tip" markdown="1">
+<img src="./public/intro_images/reaction.png" width="200" alt="Message Reaction">
+<img src="./public/intro_images/typing.png" width="200" alt="Typing">
+<img src="./public/intro_images/seen.png" width="200" alt="Seen message">
+</div>
 
 ![Horizon](./public/intro_images/horizon.png "Horizon")
 # Installation
