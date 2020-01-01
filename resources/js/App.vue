@@ -1,13 +1,13 @@
 <template>
   <div class="h-100 app-container">
-    <div class="container position-relative chat-container">
-      <div class="d-flex app-header">
-        <router-link to="/" class="flex-grow-1" style="text-decoration: none;">
+    <div class="h-100 container position-relative chat-container">
+      <div class="app-header clearfix">
+        <router-link to="/" class="float-left" style="text-decoration: none;">
           <h2 class="text-white">
             Realtime Chat App
           </h2>
         </router-link>
-        <div class="btn-logout">
+        <div class="btn-logout float-right">
           <a class="btn btn-danger" href="/logout"
               onclick="event.preventDefault();
                               document.getElementById('logout-form').submit();">
@@ -27,7 +27,11 @@
 </template>
 
 <script>
+import Footer from './components/Footer'
 export default {
+  components: {
+    Footer
+  },
   data () {
     return {
       csrfToken: document.head.querySelector('meta[name="csrf-token"]').content
@@ -55,9 +59,6 @@ html {
     .btn-logout {
       margin-right: 30px;
     }
-  }
-  .chat-container {
-    height: 95%
   }
 }
 .chat {
@@ -176,7 +177,7 @@ html {
   border: 2px solid white;
 }
 .offline {
-  background-color: #c23616 !important;
+  background-color: #c2c2c2 !important;
 }
 .user_info {
   margin-top: auto;
@@ -292,12 +293,6 @@ html {
       border-radius: 15px !important;
       max-width: 165px;
     }
-    .img_cont_msg {
-      img {
-        width: 30px;
-        height: 30px;
-      }
-    }
   }
   .text-input {
     input {
@@ -310,6 +305,16 @@ html {
     }
   }
 }
+
+.img_cont_msg {
+  width: 40px;
+  height: 40px;
+  span {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 @keyframes wave {
   0%,
   60%,
@@ -326,7 +331,7 @@ html {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    margin-right: 2px;
+    margin-right: 1px;
     background: white;
     animation: wave 1.3s linear infinite;
     &:nth-child(2) {

@@ -11,7 +11,12 @@
       </div>
     </div>
     <div class="card-body msg_card_body" id="shared_room">
-      <MessageItem v-for="message in messages" :key="message.id" :message="message" />
+      <MessageItem
+        v-for="message in messages"
+        :key="message.id"
+        :message="message"
+        @showEmoji="showEmoji"
+      />
     </div>
     <div class="card-footer">
       <div class="input-group">
@@ -27,11 +32,19 @@
         </div>
       </div>
     </div>
+    <Emoji
+      :emojiCoordinates="emojiCoordinates"
+      :isShow="isShowEmoji"
+      :selectedMessage="selectedMessage"
+      @hideEmoji="hideEmoji"
+      @selectEmoji="selectEmoji"
+    />
   </div>
 </template>
 
 <script>
 import MessageItem from './MessageItem'
+import Emoji from './Emoji'
 
 export default {
   props: {
@@ -42,10 +55,20 @@ export default {
     currentRoom: {
       type: Object,
       required: true
+    },
+    selectedMessage: {
+      type: Object
+    },
+    isShowEmoji: {
+      type: Boolean
+    },
+    emojiCoordinates: {
+      type: Object
     }
   },
   components: {
-    MessageItem
+    MessageItem,
+    Emoji
   },
   data () {
     return {
@@ -56,6 +79,15 @@ export default {
     saveMessage () {
       this.$emit('saveMessage', this.inputMessage)
       this.inputMessage = ''
+    },
+    showEmoji (message, event) {
+      this.$emit('showEmoji', message, event)
+    },
+    hideEmoji () {
+      this.$emit('hideEmoji')
+    },
+    selectEmoji (emoji) {
+      this.$emit('selectEmoji', emoji)
     }
   }
 }

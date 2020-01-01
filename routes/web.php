@@ -21,4 +21,6 @@ Route::get('/messages', 'MessageController@index')->middleware('auth');
 
 Route::post('/messages', 'MessageController@store')->middleware('auth');
 
+Route::post('/reactions', 'ReactionController@react')->middleware('auth');
+
 Route::get('/{any}', 'AppController@index')->where('any', '.*')->middleware('auth'); // catch all routes or else it will return 404 with Vue router in history mode

@@ -5,10 +5,18 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\RandomColor;
 
 class User extends Authenticatable
 {
     use Notifiable;
+
+    public static function boot() {
+		parent::boot();
+		self::creating(function ($my_model) {
+			$my_model->color = RandomColor::generate();
+		});
+	}
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +24,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'color'
     ];
 
     /**

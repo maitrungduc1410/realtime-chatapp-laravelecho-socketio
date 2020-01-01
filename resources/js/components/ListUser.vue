@@ -29,7 +29,7 @@
               >
                 {{ user.new_messages }}
               </span>
-              <p>{{ user.name }} is online</p>
+              <p>{{ user.email }}</p>
             </div>
           </div>
         </li>
