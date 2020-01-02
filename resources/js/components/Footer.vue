@@ -24,6 +24,8 @@ footer {
   text-align: center;
   position: absolute;
   bottom: 0;
+  font-size: 13px;
+  font-weight: 300;
 }
 
 @media only screen and (max-width: 768px) {
