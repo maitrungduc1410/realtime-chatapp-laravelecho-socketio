@@ -2,7 +2,7 @@
   <footer id="footer" class="w-100">
     <div>
         This demo using Laravel, VueJS, Laravel Echo, Redis, SocketIO.
-        <a href="https://github.com/maitrungduc1410/realtime-chat/tree/full-app" target="_blank">
+        <a href="https://github.com/maitrungduc1410/realtime-chatapp-laravelecho-socketio" target="_blank">
             (Source code)
         </a>
     </div>
