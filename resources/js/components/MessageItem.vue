@@ -86,7 +86,7 @@ export default {
         return this.message.content
       }
       const content = sanitizeHtml(this.message.content)
-      return content.replace(new RegExp('chuc mung|congratulations|congrats', 'gi'), match => {
+      return content.replace(new RegExp('chuc mung|congratulations|congrats|happy new year', 'gi'), match => {
         return '<span class="highlightText">' + match + '</span>'
       })
     }
