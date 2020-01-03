@@ -56,7 +56,7 @@
 <script>
 import $ from 'jquery'
 import Reaction from './Reaction'
-import sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html' // we also need to clean data when display because old data has been cleaned
 
 export default {
   components: {

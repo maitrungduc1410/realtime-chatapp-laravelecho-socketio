@@ -41,6 +41,8 @@ import ListUser from '../components/ListUser'
 import SharedRoom from '../components/SharedRoom'
 import PrivateChat from '../components/PrivateChat'
 import $ from 'jquery'
+import sanitizeHtml from 'sanitize-html'
+
 export default {
   components: {
     ListUser,
@@ -148,6 +150,10 @@ export default {
         if ((!receiver && !message.trim().length)) {
           return
         }
+
+        // clean data before save to DB
+        message = sanitizeHtml(message)
+
         const response = await this.$axios.post('/messages', {
           receiver,
           content: message,
