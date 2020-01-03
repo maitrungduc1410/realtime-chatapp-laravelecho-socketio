@@ -56,6 +56,7 @@
 <script>
 import $ from 'jquery'
 import Reaction from './Reaction'
+import sanitizeHtml from 'sanitize-html'
 
 export default {
   components: {
@@ -84,7 +85,7 @@ export default {
       if (this.message.receiver) { // ignore if this is private message
         return this.message.content
       }
-      const content = this.message.content
+      const content = sanitizeHtml(this.message.content)
       return content.replace(new RegExp('chuc mung|congratulations|congrats', 'gi'), match => {
         return '<span class="highlightText">' + match + '</span>'
       })
