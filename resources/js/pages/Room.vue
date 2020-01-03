@@ -152,7 +152,11 @@ export default {
         }
 
         // clean data before save to DB
-        message = sanitizeHtml(message)
+        message = sanitizeHtml(message).trim()
+
+        if (!message.length) {
+          return
+        }
 
         const response = await this.$axios.post('/messages', {
           receiver,
