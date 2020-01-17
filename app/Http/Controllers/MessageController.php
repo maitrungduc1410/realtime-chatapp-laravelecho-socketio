@@ -10,7 +10,13 @@ use App\Events\MessagePosted;
 class MessageController extends Controller
 {
     public function index (Request $request) {
-        $messages = Message::with(['sender', 'receiver', 'reactions.user'])->where('room', $request->query('room', ''))->orderBy('created_at', 'asc')->limit(300)->get();
+        $messages = Message::with(['sender', 'receiver', 'reactions.user'])
+			->where('room', $request->query('room', ''))
+			->orderBy('created_at', 'desc')
+			->take(300)
+			->get()
+			->reverse()
+			->values();
         return $messages;
     }
 
