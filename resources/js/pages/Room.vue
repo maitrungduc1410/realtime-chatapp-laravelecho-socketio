@@ -154,9 +154,9 @@ export default {
       const isPrivate = room.toString().includes('__')
       const chat = isPrivate ? this.privateChat : this.publicChat
       try {
+        chat.message.isLoading = true
         const response = await this.$axios.get(`/messages?room=${room}&page=${page}`)
 
-        chat.message.isLoading = true
         chat.message.list = [...response.data.data.reverse(), ...chat.message.list]
         chat.message.currentPage = response.data.current_page
         chat.message.perPage = response.data.per_page
