@@ -10,29 +10,29 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "eslint": "^6.7.1",
-        "eslint-config-standard": "^14.1.0",
-        "eslint-plugin-import": "^2.18.2",
+        "eslint": "^6.8.0",
+        "eslint-config-standard": "^14.1.1",
+        "eslint-plugin-import": "^2.20.2",
         "eslint-plugin-node": "^10.0.0",
         "eslint-plugin-promise": "^4.2.1",
         "eslint-plugin-standard": "^4.0.1",
-        "eslint-plugin-vue": "^6.0.1"
+        "eslint-plugin-vue": "^6.2.2"
     },
     "dependencies": {
-        "axios": "^0.19",
-        "canvas-confetti": "^1.0.2",
+        "axios": "^0.19.2",
+        "canvas-confetti": "^1.2.0",
         "cross-env": "^5.1",
-        "jquery": "^3.2",
-        "laravel-echo": "^1.6.1",
+        "jquery": "^3.5.0",
+        "laravel-echo": "^1.7.0",
         "laravel-mix": "^4.0.7",
         "lodash": "^4.17.13",
         "resolve-url-loader": "^2.3.1",
-        "sanitize-html": "^1.20.1",
-        "sass": "^1.20.1",
+        "sanitize-html": "^1.23.0",
+        "sass": "^1.26.5",
         "sass-loader": "7.*",
         "socket.io-client": "^2.3.0",
-        "vue": "^2.5.17",
-        "vue-router": "^3.1.3",
-        "vue-template-compiler": "^2.6.10"
+        "vue": "^2.6.11",
+        "vue-router": "^3.1.6",
+        "vue-template-compiler": "^2.6.11"
     }
 }
