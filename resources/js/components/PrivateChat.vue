@@ -1,21 +1,21 @@
 <template>
   <div
     class="private-message-container"
-    :class="privateChat.isPrivateChatExpand ? 'expand' : ''"
+    :class="chat.isPrivateChatExpand ? 'expand' : ''"
     @click="$emit('focusPrivateInput')"
   >
     <div
       class="chat-header d-flex p-2 border-bottom"
-      :class="privateChat.hasNewMessage ? 'blink-anim' : ''"
-      @click="privateChat.isPrivateChatExpand = !privateChat.isPrivateChatExpand"
+      :class="chat.hasNewMessage ? 'blink-anim' : ''"
+      @click="chat.isPrivateChatExpand = !chat.isPrivateChatExpand"
     >
       <div class="img_cont">
         <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img" style="width: 40px; height: 40px;">
-        <span class="online_icon" :class="privateChat.isOnline ? 'online' : 'offline'" style="bottom: -3px;"></span>
+        <span class="online_icon" :class="chat.isOnline ? 'online' : 'offline'" style="bottom: -3px;"></span>
       </div>
       <div class="user_info">
-        <span style="color: black;">{{ privateChat.selectedReceiver.name }}</span>
-        <!-- <p style="color: black;" class="mb-0">{{ privateChat.selectedReceiver.name }} left 50 mins ago</p> -->
+        <span style="color: black;">{{ chat.selectedReceiver.name }}</span>
+        <!-- <p style="color: black;" class="mb-0">{{ chat.selectedReceiver.name }} left 50 mins ago</p> -->
       </div>
       <div class="color-picker">
         <i
@@ -32,18 +32,26 @@
         <i class="fal fa-times"></i>
       </button>
     </div>
-    <div class="private-chat-body p-2" v-if="privateChat.isPrivateChatExpand" id="private_room">
+    <div class="private-chat-body p-2" v-if="chat.isPrivateChatExpand" id="private_room">
+      <div class="loading mb-2 text-center" v-if="chat.message.isLoading">
+        <svg
+          version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+          <path fill="#FF6700" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z" transform="rotate(18.3216 25 25)">
+            <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform>
+          </path>
+        </svg>
+      </div>
       <MessageItem
-        v-for="message in messages"
+        v-for="message in chat.message.list"
         :key="message.id"
         :message="message"
         :msgColor="msgColor"
         @showEmoji="showEmoji"
       />
-      <div class="d-flex justify-content-end" v-if="privateChat.isSeen">
-        <i class="font-12px">Seen {{ privateChat.seenAt | toLocalTime }}</i>
+      <div class="d-flex justify-content-end" v-if="chat.isSeen">
+        <i class="font-12px">Seen {{ chat.seenAt | toLocalTime }}</i>
       </div>
-      <div class="d-flex justify-content-start mb-4" v-if="privateChat.isSelectedReceiverTyping">
+      <div class="d-flex justify-content-start mb-4" v-if="chat.isSelectedReceiverTyping">
         <div class="img_cont_msg">
           <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg">
         </div>
@@ -56,7 +64,7 @@
         </div>
       </div>
     </div>
-    <div class="text-input" v-if="privateChat.isPrivateChatExpand">
+    <div class="text-input" v-if="chat.isPrivateChatExpand">
       <input
         v-model="inputMessage"
         id="private_input"
@@ -95,12 +103,8 @@ import $ from 'jquery'
 
 export default {
   props: {
-    privateChat: {
+    chat: {
       type: Object,
-      required: true
-    },
-    messages: {
-      type: Array,
       required: true
     },
     selectedMessage: {
@@ -138,14 +142,25 @@ export default {
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
     })
+
+    $('#private_room').on('scroll', async () => {
+      const scroll = $('#private_room').scrollTop()
+      if (scroll < 1 && this.chat.message.currentPage < this.chat.message.lastPage) {
+        this.$emit('getMessages', this.chat.roomId, this.chat.message.currentPage + 1, true)
+      }
+    })
+  },
+  beforeDestroy () {
+    this.$Echo.leave(`room.${this.chat.roomId}`)
+    $('#private_room').off('scroll')
   },
   methods: {
     saveMessage () {
-      this.$emit('saveMessage', this.inputMessage, this.privateChat.selectedReceiver.id)
+      this.$emit('saveMessage', this.inputMessage, this.chat.selectedReceiver.id)
       this.inputMessage = ''
     },
     onInputPrivateChange: throttle(function () {
-      this.$Echo.private(`room.${this.privateChat.roomId}`)
+      this.$Echo.private(`room.${this.chat.roomId}`)
         .whisper('typing', {
           user: this.$root.user,
           isTyping: this.inputMessage.length > 0
@@ -168,9 +183,6 @@ export default {
       this.msgColor = value
       this.toggleColorPicker()
     }
-  },
-  beforeDestroy () {
-    this.$Echo.leave(`room.${this.privateChat.roomId}`)
   }
 }
 </script>

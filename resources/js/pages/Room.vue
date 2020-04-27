@@ -2,7 +2,7 @@
   <div class="row justify-content-center h-100">
     <div class="col-md-8 chat">
       <SharedRoom
-        :messages="publicMessages"
+        :chat="publicChat"
         :currentRoom="currentRoom"
         :selectedMessage="selectedMessage"
         :isShowEmoji="isShowEmoji"
@@ -11,6 +11,7 @@
         @showEmoji="showEmoji"
         @hideEmoji="hideEmoji"
         @selectEmoji="selectEmoji"
+        @getMessages="getMessages"
       />
     </div>
     <div class="col-md-4 chat">
@@ -21,8 +22,7 @@
     </div>
     <PrivateChat
       v-if="privateChat.selectedReceiver"
-      :privateChat="privateChat"
-      :messages="privateMessages"
+      :chat="privateChat"
       :selectedMessage="selectedMessage"
       :isShowEmoji="isShowEmoji"
       :emojiCoordinates="emojiCoordinates"
@@ -32,6 +32,7 @@
       @showEmoji="showEmoji"
       @hideEmoji="hideEmoji"
       @selectEmoji="selectEmoji"
+      @getMessages="getMessages"
     />
   </div>
 </template>
@@ -52,8 +53,17 @@ export default {
   data () {
     return {
       currentRoom: {},
-      publicMessages: [],
-      privateMessages: [],
+      publicChat: {
+        message: {
+          isLoading: false,
+          list: [],
+          currentPage: 0,
+          perPage: 0,
+          total: 0,
+          lastPage: 0,
+          newMessageArrived: 0 // number of new messages we just got (use for saving scroll position)
+        }
+      },
       usersOnline: [],
       privateChat: {
         selectedReceiver: null,
@@ -63,7 +73,16 @@ export default {
         isSeen: null, // null: no new message, false: a message is waiting to be seen, true: user seen message (should display "Seen at..")
         seenAt: '',
         roomId: '',
-        isOnline: true
+        isOnline: true,
+        message: {
+          isLoading: false,
+          list: [],
+          currentPage: 0,
+          perPage: 0,
+          total: 0,
+          lastPage: 0,
+          newMessageArrived: 0 // number of new messages we just got (use for saving scroll position)
+        }
       },
       emojiCoordinates: {
         x: 0,
@@ -98,11 +117,11 @@ export default {
           }
         })
         .listen('MessagePosted', e => {
-          this.publicMessages.push(e.message)
+          this.publicChat.message.list.push(e.message)
           this.scrollToBottom(document.getElementById('shared_room'), true)
         })
         .listen('BotNotification', e => {
-          this.publicMessages.push({
+          this.publicChat.message.list.push({
             content: e.message,
             room: e.room,
             id: Date.now(),
@@ -117,7 +136,7 @@ export default {
       this.$Echo.private(`room.${this.$root.user.id}`) // listen to user's own room (in order to receive all private messages from other users)
         .listen('MessagePosted', e => {
           if (this.privateChat.selectedReceiver && e.message.sender.id === this.privateChat.selectedReceiver.id) {
-            this.privateMessages.push(e.message)
+            this.privateChat.message.list.push(e.message)
             this.privateChat.isSeen = null // when receive new private message, considered user have seen -> reset isSeen to inital state
             this.privateChat.hasNewMessage = true // notify user there's new message
             this.scrollToBottom(document.getElementById('private_room'), true)
@@ -131,18 +150,33 @@ export default {
     }
   },
   methods: {
-    async getMessages (room) {
+    async getMessages (room, page = 1, loadMore = false) {
+      const isPrivate = room.toString().includes('__')
+      const chat = isPrivate ? this.privateChat : this.publicChat
       try {
-        const response = await this.$axios.get(`/messages?room=${room}`)
-        if (room.toString().includes('__')) {
-          this.privateMessages = response.data
-          this.scrollToBottom(document.getElementById('private_room'), false)
+        const response = await this.$axios.get(`/messages?room=${room}&page=${page}`)
+
+        chat.message.isLoading = true
+        chat.message.list = [...response.data.data.reverse(), ...chat.message.list]
+        chat.message.currentPage = response.data.current_page
+        chat.message.perPage = response.data.per_page
+        chat.message.lastPage = response.data.last_page
+        chat.message.total = response.data.total
+        chat.message.newMessageArrived = response.data.data.length
+
+        if (loadMore) {
+          this.$nextTick(() => {
+            const el = $(isPrivate ? '#private_room' : '#shared_room')
+            const lastFirstMessage = el.children().eq(chat.message.newMessageArrived - 1)
+            el.scrollTop(lastFirstMessage.position().top - 10)
+          })
         } else {
-          this.publicMessages = response.data
-          this.scrollToBottom(document.getElementById('shared_room'), false)
+          this.scrollToBottom(document.getElementById(isPrivate ? 'private_room' : 'shared_room'), false)
         }
       } catch (error) {
         console.log(error)
+      } finally {
+        chat.message.isLoading = false
       }
     },
     async saveMessage (message, receiver = null) {
@@ -164,7 +198,7 @@ export default {
           room: receiver ? null : this.currentRoom.id
         })
         if (receiver) {
-          this.privateMessages.push(response.data.message)
+          this.privateChat.message.list.push(response.data.message)
           this.privateChat.isSeen = false // waiting for other to seen this message
           // send message indicate that user stop typing (incase Throttle function isn't called)
           this.$Echo.private(`room.${this.privateChat.roomId}`)
@@ -173,7 +207,7 @@ export default {
               isTyping: false
             })
         } else {
-          this.publicMessages.push(response.data.message)
+          this.publicChat.message.list.push(response.data.message)
         }
         this.scrollToBottom(document.getElementById(`${receiver ? 'private' : 'shared'}_room`), true)
       } catch (error) {
@@ -242,7 +276,7 @@ export default {
       }
     },
     resetPrivateChat () { // reset private chat when change to another user
-      this.privateMessages = []
+      this.privateChat.message.list = []
       this.privateChat.selectedReceiver = null
       this.privateChat.isPrivateChatExpand = false
       this.privateChat.isSelectedReceiverTyping = false
@@ -288,11 +322,9 @@ export default {
     },
     onOtherUserReaction (reaction, room) {
       let listMessage = []
-      if (room === 'share') {
-        listMessage = this.publicMessages
-      } else {
-        listMessage = this.privateMessages
-      }
+
+      listMessage = room === 'share' ? this.publicChat.message.list : this.privateChat.message.list
+
       const messageIndex = listMessage.findIndex(m => m.id === reaction.msg_id)
       if (messageIndex > -1) {
         const message = listMessage[messageIndex]
