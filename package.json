@@ -25,7 +25,7 @@
         "jquery": "^3.5.0",
         "laravel-echo": "^1.7.0",
         "laravel-mix": "^4.0.7",
-        "lodash": "^4.17.13",
+        "lodash": "^4.17.19",
         "resolve-url-loader": "^2.3.1",
         "sanitize-html": "^1.23.0",
         "sass": "^1.26.5",
