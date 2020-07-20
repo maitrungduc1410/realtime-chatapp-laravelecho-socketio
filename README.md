@@ -47,6 +47,12 @@ Now, migrate and seed the database:
 ```
 php artisan migrate --seed
 ```
+
+Next, config Laravel echo server by running:
+```
+laravel-echo-server init
+```
+Just choose `Yes`, and remember to choose `redis` and `http`
 ## Run the app
 To run the app, run the following commands, each command in **a separate terminal**:
 ```
