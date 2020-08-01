@@ -7,21 +7,21 @@
         @saveMessage="saveMessage"
       />
     </div>
-    <!-- <div class="col-md-4 chat">
+    <div class="col-md-4 chat">
       <ListUser
         :usersOnline="usersOnline"
       />
-    </div> -->
+    </div>
   </div>
 </template>
 
 <script>
-// import ListUser from '../components/ListUser'
+import ListUser from '../components/ListUser'
 import SharedRoom from '../components/SharedRoom'
 import $ from 'jquery'
 export default {
   components: {
-    // ListUser,
+    ListUser,
     SharedRoom
   },
   data () {
@@ -33,11 +33,36 @@ export default {
   },
   created () {
     this.getMessages()
+
     const index = this.$root.rooms.findIndex(item => item.id === parseInt(this.$route.params.roomId))
     if (index > -1) {
       this.currentRoom = this.$root.rooms[index]
+
+      // eslint-disable-next-line no-undef
+      Echo.join(`room.${this.currentRoom.id}`)
+        .here((users) => { // gọi ngay thời điểm ta join vào phòng, trả về tổng số user hiện tại có trong phòng (cả ta)
+          this.usersOnline = users
+        })
+        .joining((user) => { // gọi khi có user mới join vào phòng
+          this.usersOnline.push(user)
+        })
+        .leaving((user) => { // gọi khi có user rời phòng
+          const index = this.usersOnline.findIndex(item => item.id === user.id)
+          if (index > -1) {
+            this.usersOnline.splice(index, 1)
+          }
+        })
+        .listen('MessagePosted', (e) => {
+          this.messages.push(e.message)
+          this.scrollToBottom(document.getElementById('shared_room'), true)
+        })
     }
   },
+beforeDestroy () {
+    // huỷ lắng nghe tin nhắn ở chatroom hiện tại
+    // nếu như user chuyển qua route/chatroom khác
+    Echo.leave(`room.${this.currentRoom.id}`)
+},
   methods: {
     async getMessages () {
       try {
