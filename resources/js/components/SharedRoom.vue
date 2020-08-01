@@ -32,7 +32,6 @@
 
 <script>
 import MessageItem from './MessageItem'
-
 export default {
   props: {
     messages: {
@@ -62,5 +61,4 @@ export default {
 </script>
 
 <style>
-
 </style>

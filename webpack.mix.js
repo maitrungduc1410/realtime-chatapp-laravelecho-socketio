@@ -1,4 +1,4 @@
-const mix = require('laravel-mix')
+const mix = require('laravel-mix');
 
 /*
  |--------------------------------------------------------------------------
@@ -17,4 +17,4 @@ if (mix.inProduction()) {
 
 mix.js('resources/js/app.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
-  .extract(['vue', 'axios', 'jquery', 'lodash', 'bootstrap'])
+  .extract(['vue', 'axios', 'jquery', 'lodash', 'vue-router'])

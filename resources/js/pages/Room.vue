@@ -19,7 +19,6 @@
 // import ListUser from '../components/ListUser'
 import SharedRoom from '../components/SharedRoom'
 import $ from 'jquery'
-
 export default {
   components: {
     // ListUser,
@@ -34,7 +33,6 @@ export default {
   },
   created () {
     this.getMessages()
-
     const index = this.$root.rooms.findIndex(item => item.id === parseInt(this.$route.params.roomId))
     if (index > -1) {
       this.currentRoom = this.$root.rooms[index]
@@ -45,7 +43,6 @@ export default {
       try {
         const response = await this.$axios.get(`/messages?room=${this.$route.params.roomId}`)
         this.messages = response.data
-
         this.scrollToBottom(document.getElementById('shared_room'), false)
       } catch (error) {
         console.log(error)
@@ -57,9 +54,7 @@ export default {
           room: this.$route.params.roomId,
           content
         })
-
         this.messages.push(response.data.message)
-
         this.scrollToBottom(document.getElementById('shared_room'), true)
       } catch (error) {
         console.log(error)
@@ -85,5 +80,4 @@ export default {
 </script>
 
 <style>
-
 </style>

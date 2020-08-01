@@ -19,7 +19,6 @@
 
 <script>
 import $ from 'jquery'
-
 export default {
   props: {
     message: {
@@ -35,5 +34,4 @@ export default {
 </script>
 
 <style>
-
 </style>

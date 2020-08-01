@@ -1,13 +1,10 @@
-/* eslint-disable no-unused-vars */
 import App from './App.vue'
 import router from './router'
 require('./bootstrap')
 
 window.Vue = require('vue')
-// eslint-disable-next-line no-undef
 Vue.prototype.$axios = axios
 
-// eslint-disable-next-line no-undef
 const app = new Vue({
   render: h => h(App),
   router,
