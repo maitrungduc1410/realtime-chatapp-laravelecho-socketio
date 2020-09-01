@@ -53,6 +53,8 @@ Next, config Laravel echo server by running:
 laravel-echo-server init
 ```
 Just choose `Yes`, and remember to choose `redis` and `http`
+
+After that change `MIX_FRONTEND_PORT` in `.env` to 6001 (match `laravel-echo-server` port)
 ## Run the app
 To run the app, run the following commands, each command in **a separate terminal**:
 ```
@@ -128,7 +130,7 @@ docker-compose exec app php artisan migrate --seed
 
 Now access the app at: `localhost:4000`
 
-If you want to change to another port instead of `4000`. Change `MIX_APP_PORT` and `MIX_FRONTEND_PORT` to the same one you want. Then run following command to rebuild frontend:
+If you want to change to another port instead of `4000`. Change `APP_PORT` and `MIX_FRONTEND_PORT` to the same one you want. Then run following command to rebuild frontend:
 ```
 docker run --rm -v $(pwd):/app -w /app node npm run prod
 ```
