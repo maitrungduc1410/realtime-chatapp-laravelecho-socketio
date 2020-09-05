@@ -155,3 +155,6 @@ docker run --rm -v $(pwd):/app -w /app node npm run dev/watch/prod
 When deploying to production, normally you'll run you app with HTTPS (port 443), then your frontend will be served under HTTPS too. So changing the `MIX_FRONTEND_PORT` in `.env` to 443.
 
 Other settings are same
+
+## Run containers as non-root user
+If you're looking for running this app with Docker using non-root users (which is highly recommended in production), then checkout my `docker-non-root` branch
