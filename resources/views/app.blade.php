@@ -18,6 +18,7 @@
         <div id="app" class="h-100"></div>
 
         <script>window.__app__ = @json($data)</script>
+        <script src="http://localhost:6001/socket.io/socket.io.js"></script>
         <script src="{{ mix('js/manifest.js') }}"></script>
         <script src="{{ mix('js/vendor.js') }}"></script>
         <script src="{{ mix('js/app.js') }}"></script>
