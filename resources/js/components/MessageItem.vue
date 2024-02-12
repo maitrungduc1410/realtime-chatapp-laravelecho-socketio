@@ -80,7 +80,7 @@ function celebrate(event) {
     <div
       class="msg-item d-flex justify-content-end mb-4"
       :class="{
-        private: props.isPrivate,
+        private: isPrivate,
         'flex-row-reverse': !isMyUser,
       }"
     >
@@ -120,7 +120,7 @@ function celebrate(event) {
           @click="celebrate"
         ></div>
         <button 
-          v-if="props.message.content.length > MAX_CONTENT_LENGTH"
+          v-if="message.content.length > MAX_CONTENT_LENGTH"
           type="button"
           class="btn btn-link text-decoration-none"
           @click="hideContent = !hideContent"
@@ -139,14 +139,14 @@ function celebrate(event) {
           'bg-white rounded-circle d-flex justify-content-center align-items-center':
             !isMyUser,
         }"
-        :data-bs-toggle="props.isPrivate ? undefined : 'tooltip'"
-        :data-bs-placement="props.isPrivate ? undefined : 'top'"
+        :data-bs-toggle="isPrivate ? undefined : 'tooltip'"
+        :data-bs-placement="isPrivate ? undefined : 'top'"
         :data-bs-title="
-          props.isPrivate
+          isPrivate
             ? undefined
             : `Click to chat with ${message.sender.name} (${message.sender.email})`
         "
-        @click="props.isPrivate ? $emit('selectReceiver', message.sender) : 1"
+        @click="!isPrivate && $emit('selectReceiver', message.sender)"
       >
         <img
           src="/images/current_user.jpg"

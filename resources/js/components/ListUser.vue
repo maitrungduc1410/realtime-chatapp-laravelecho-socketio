@@ -25,7 +25,7 @@ const filteredUsersList = computed(() => {
     <div class="card-header">
       <h3 class="d-flex text-white">
         Online<span class="badge text-bg-success ms-2">{{
-          props.usersOnline.length
+          usersOnline.length
         }}</span>
       </h3>
       <div class="input-group">

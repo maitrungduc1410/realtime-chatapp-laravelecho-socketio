@@ -15,7 +15,7 @@ import { Tooltip } from "bootstrap";
 import ColorPickerModal from "./ColorPickerModal.vue";
 import { throttle } from "lodash";
 import DOMPurify from "dompurify";
-import { AxiosError } from 'axios'
+import { AxiosError } from "axios";
 
 const props = defineProps({
   isPrivate: {
@@ -114,12 +114,12 @@ watch(
 );
 
 function initChat() {
-  inputMessage.value = ''
+  inputMessage.value = "";
   messages.value = [];
   privateHasNewMessage.value = false;
   isTyping.value = false;
   isSeen.value = false;
-  
+
   getMessages(props.roomId);
 
   if (props.isPrivate) {
@@ -223,7 +223,7 @@ async function selectEmoji(emoji) {
     console.log(error);
 
     if (error instanceof AxiosError) {
-      showToast('Error', error.response.data.message)
+      showToast("Error", error.response.data.message);
     }
   }
 }
@@ -273,7 +273,7 @@ async function saveMessage() {
   } catch (error) {
     console.log(error);
     if (error instanceof AxiosError) {
-      showToast('Error', error.response.data.message)
+      showToast("Error", error.response.data.message);
     }
   }
 }
@@ -300,7 +300,7 @@ async function getMessages(room, page = 1, loadMore = false) {
   } catch (error) {
     console.log(error);
     if (error instanceof AxiosError) {
-      showToast('Error', error.response.data.message)
+      showToast("Error", error.response.data.message);
     }
   } finally {
     isLoadingMessages.value = false;
@@ -358,7 +358,7 @@ const onInputPrivateChange = throttle(function () {
   <div
     class="card"
     :class="{
-      'private-message-container bg-white': props.isPrivate,
+      'private-message-container bg-white': isPrivate,
       expand: isChatExpanded,
     }"
     ref="rootEl"
@@ -366,7 +366,7 @@ const onInputPrivateChange = throttle(function () {
   >
     <!-- @click="EXPANDDDD" -->
     <div
-      v-if="props.isPrivate"
+      v-if="isPrivate"
       class="chat-header d-flex"
       :class="{
         'blink-anim': privateHasNewMessage && isBeingFocused,
@@ -378,7 +378,7 @@ const onInputPrivateChange = throttle(function () {
       <div class="img_cont">
         <img
           :src="
-            props.receiver.id === user.id
+            receiver.id === user.id
               ? '/images/current_user.jpg'
               : '/images/other_user.jpg'
           "
@@ -388,14 +388,12 @@ const onInputPrivateChange = throttle(function () {
         <span
           class="online_icon"
           style="bottom: -3px"
-          :class="props.receiver.isOnline ? 'online' : 'offline'"
+          :class="receiver.isOnline ? 'online' : 'offline'"
         ></span>
       </div>
       <div class="user_info">
         <span style="color: black">{{
-          `${props.receiver.name}${
-            props.receiver.id === user.id ? " (You)" : ""
-          }`
+          `${receiver.name}${receiver.id === user.id ? " (You)" : ""}`
         }}</span>
         <!-- <p style="color: black;" class="mb-0">{{ chat.selectedReceiver.name }} left 50 mins ago</p> -->
       </div>
@@ -417,10 +415,10 @@ const onInputPrivateChange = throttle(function () {
     <div v-else class="card-header msg_head">
       <div class="bd-highlight">
         <div class="user_info">
-          <span>{{ props.roomName }}</span>
+          <span>{{ roomName }}</span>
         </div>
         <div class="text-white ms-3">
-          {{ props.roomDescription }}
+          {{ roomDescription }}
         </div>
       </div>
     </div>
@@ -463,13 +461,13 @@ const onInputPrivateChange = throttle(function () {
       <MessageItem
         v-for="message in messages"
         :key="message.id"
-        :isPrivate="props.isPrivate"
+        :isPrivate="isPrivate"
         :message="message"
         :msgColor="msgColor"
         @showEmoji="showEmoji"
         @selectReceiver="$emit('selectReceiver', $event)"
       />
-      <div v-if="props.isPrivate">
+      <div v-if="isPrivate">
         <div class="d-flex justify-content-end" v-if="isSeen">
           <i class="font-12px">Seen {{ seenAtFormatted }}</i>
         </div>
@@ -490,7 +488,7 @@ const onInputPrivateChange = throttle(function () {
         </div>
       </div>
     </div>
-    <div class="text-input" v-if="props.isPrivate">
+    <div class="text-input" v-if="isPrivate">
       <input
         v-model="inputMessage"
         v-if="isChatExpanded"
@@ -520,7 +518,9 @@ const onInputPrivateChange = throttle(function () {
           ><i class="fas fa-location-arrow"></i
         ></span>
       </div>
-      <small class="float-end text-white mt-1">{{ inputMessage.length }}/2000</small>
+      <small class="float-end text-white mt-1"
+        >{{ inputMessage.length }}/2000</small
+      >
     </div>
     <Emoji
       :emojiCoordinates="emojiCoordinates"
@@ -530,7 +530,7 @@ const onInputPrivateChange = throttle(function () {
       @selectEmoji="selectEmoji"
     />
 
-    <Transition name="fade" v-if="props.isPrivate">
+    <Transition name="fade" v-if="isPrivate">
       <ColorPickerModal
         v-if="isShowColorPicker"
         :isShow="isShowColorPicker"
