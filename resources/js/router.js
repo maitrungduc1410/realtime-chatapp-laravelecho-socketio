@@ -1,9 +1,6 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import ListRoom from './pages/ListRoom'
-import Room from './pages/Room'
-
-Vue.use(VueRouter)
+import { createRouter, createWebHistory } from 'vue-router'
+import ListRoom from './pages/ListRoom.vue'
+import Room from './pages/Room.vue'
 
 const routes = [
   {
@@ -18,8 +15,8 @@ const routes = [
   }
 ]
 
-const router = new VueRouter({
-  mode: 'history',
+const router = createRouter({
+  history: createWebHistory(),
   routes
 })
 

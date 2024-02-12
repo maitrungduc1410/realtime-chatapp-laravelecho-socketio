@@ -1,98 +1,154 @@
+<script setup>
+import Reaction from "./Reaction.vue";
+import DOMPurify from "dompurify"; // we also need to clean data when display because old data has been cleaned
+import { Tooltip } from "bootstrap";
+import { computed, inject, onMounted, ref } from "vue";
+import confetti from "canvas-confetti";
+
+const props = defineProps({
+  isPrivate: {
+    type: Boolean,
+    default: false,
+  },
+  message: {
+    type: Object,
+    required: true,
+  },
+  msgColor: {
+    type: String,
+  },
+});
+
+const emit = defineEmits(["showEmoji", "selectReceiver"]);
+const $el = ref(null);
+const user = inject("$user");
+const confettiWords = inject("$confettiWords");
+
+onMounted(() => {
+  // only find in this component HTML using $el
+  const tooltipTriggerList = $el.value.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+  );
+  [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+  );
+});
+
+function showEmoji(event) {
+  emit("showEmoji", props.message, event);
+}
+
+const highlight = computed(() => {
+  if (props.isPrivate) {
+    // ignore if this is private message
+    return props.message.content;
+  }
+
+  const content = DOMPurify.sanitize(props.message.content);
+  return content.replace(new RegExp(confettiWords, "gi"), (match) => {
+    return '<span class="highlightText">' + match + "</span>";
+  });
+});
+
+const createdAt = computed(() => {
+  const d = new Date(props.message.created_at);
+  return d.toLocaleString();
+});
+
+const isMyUser = computed(() => {
+  return props.message.sender && props.message.sender.id === user.id;
+});
+
+function celebrate(event) {
+  const highlightItem = $(event.currentTarget).find(".highlightText");
+  if (highlightItem.length) {
+    confetti({
+      particleCount: 300,
+      spread: 150,
+      origin: {
+        y: 1,
+      },
+    });
+  }
+}
+</script>
+
 <template>
-  <div class="d-flex justify-content-end mb-4" v-if="message.type === 'bot'">
-    <div class="msg_container_send bot-notification" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
-      Bot: {{ message.content }}
-    </div>
-  </div>
-  <div
-    class="msg-item d-flex justify-content-end mb-4"
-    :class="{'private': message.receiver }"
-    v-else-if="message.sender.id === $root.user.id">
-    <div class="msg-actions d-flex mr-2">
-      <div class="d-flex align-items-center">
-        <i class="fal fa-grin-alt" data-toggle="tooltip" data-placement="top" title="React" @click="showEmoji"></i>
-      </div>
-    </div>
+  <div ref="$el">
     <div
-      class="msg_container_send"
-      data-toggle="tooltip"
-      data-placement="top"
-      :title="message.created_at | toLocalTime"
-      :style="message.receiver ? `background-color: ${msgColor}` : ''"
+      class="msg-item d-flex justify-content-end mb-4"
+      :class="{
+        private: props.isPrivate,
+        'flex-row-reverse': !isMyUser,
+      }"
     >
-      <div v-html="highlight"></div>
-      <Reaction
-        v-if="message.reactions.length"
-        :reactions="message.reactions"
-      />
-    </div>
-    <div class="img_cont_msg" data-toggle="tooltip" data-placement="top" :title="`${message.sender.name} (${message.sender.email})`">
-      <img src="/images/current_user.jpg" class="rounded-circle user_img_msg">
-    </div>
-  </div>
-  <div
-    class="msg-item d-flex justify-content-start mb-4"
-    :class="{'private': message.receiver }"
-    v-else
-  >
-    <div class="img_cont_msg bg-white rounded-circle d-flex justify-content-center align-items-center" data-toggle="tooltip" data-placement="top" :title="`${message.sender.name} (${message.sender.email})`">
-      <span class="rounded-circle d-flex justify-content-center align-items-center" :style="`background-color: ${message.sender.color}`">{{ message.sender.name[0].toUpperCase() }}</span>
-    </div>
-    <div class="msg_container" :class="{'bg-gray': message.receiver}" data-toggle="tooltip" data-placement="top" :title="message.created_at | toLocalTime">
-      <div v-html="highlight"></div>
-      <Reaction
-        v-if="message.reactions.length"
-        :reactions="message.reactions"
-      />
-    </div>
-    <div class="msg-actions d-flex ml-2">
-      <div class="d-flex align-items-center">
-        <i class="fal fa-grin-alt" data-toggle="tooltip" data-placement="top" title="React" @click="showEmoji"></i>
+      <div
+        v-if="message.type !== 'bot'"
+        class="msg-actions d-flex"
+        :class="{ 'me-2': isMyUser, 'ms-2': !isMyUser }"
+      >
+        <div class="d-flex align-items-center">
+          <i
+            class="fal fa-grin-alt"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="React"
+            @click="showEmoji"
+          ></i>
+        </div>
+      </div>
+      <div
+        :class="{
+          msg_container_send: isMyUser,
+          msg_container: !isMyUser,
+          'bot-notification': message.type === 'bot',
+        }"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        :data-bs-title="createdAt"
+        :style="
+          message.receiver
+            ? `background-color: ${isMyUser ? msgColor : ''}`
+            : ''
+        "
+      >
+        <div v-html="highlight" @click="celebrate"></div>
+        <Reaction
+          v-if="message.reactions.length"
+          :reactions="message.reactions"
+        />
+      </div>
+      <div
+        v-if="message.type !== 'bot'"
+        class="img_cont_msg"
+        :class="{
+          'bg-white rounded-circle d-flex justify-content-center align-items-center':
+            !isMyUser,
+        }"
+        :data-bs-toggle="props.isPrivate ? undefined : 'tooltip'"
+        :data-bs-placement="props.isPrivate ? undefined : 'top'"
+        :data-bs-title="
+          props.isPrivate
+            ? undefined
+            : `Click to chat with ${message.sender.name} (${message.sender.email})`
+        "
+        @click="props.isPrivate ? $emit('selectReceiver', message.sender) : 1"
+      >
+        <img
+          src="/images/current_user.jpg"
+          class="rounded-circle user_img_msg"
+          v-if="isMyUser"
+        />
+        <span
+          v-else
+          class="rounded-circle d-flex justify-content-center align-items-center"
+          :style="`background-color: ${message.sender.color}`"
+          >{{ message.sender.name[0].toUpperCase() }}</span
+        >
       </div>
     </div>
   </div>
 </template>
-
-<script>
-import $ from 'jquery'
-import Reaction from './Reaction'
-import sanitizeHtml from 'sanitize-html' // we also need to clean data when display because old data has been cleaned
-
-export default {
-  components: {
-    Reaction
-  },
-  props: {
-    message: {
-      required: true
-    },
-    msgColor: {
-      type: String
-    }
-  },
-  mounted () {
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    })
-  },
-  methods: {
-    showEmoji (event) {
-      this.$emit('showEmoji', this.message, event)
-    }
-  },
-  computed: {
-    highlight () {
-      if (this.message.receiver) { // ignore if this is private message
-        return this.message.content
-      }
-      const content = sanitizeHtml(this.message.content)
-      return content.replace(new RegExp('chuc mung|congratulations|congrats|happy new year', 'gi'), match => {
-        return '<span class="highlightText">' + match + '</span>'
-      })
-    }
-  }
-}
-</script>
 
 <style lang="scss">
 .bot-notification {
@@ -100,29 +156,36 @@ export default {
   width: 100%;
   border-radius: 4px;
   background-color: #043244;
+  font-size: 16px;
+  font-style: italic;
 }
+
 .msg-item {
   &.private {
     .msg-actions {
       i {
         &:hover {
-          color: #054760 !important;
+          color: #04a6e9 !important;
         }
       }
     }
   }
+
   &:hover {
     .msg-actions {
       opacity: 1;
     }
   }
+
   .msg-actions {
     opacity: 0;
-    transition: opacity .2s;
+    transition: opacity 0.2s;
+
     i {
       color: lightgray;
       cursor: pointer;
-      transition: color .2s;
+      transition: color 0.2s;
+
       &:hover {
         color: white;
       }
@@ -139,5 +202,9 @@ export default {
 .bg-gray {
   background-color: #f1f0f0;
   color: #444950;
+}
+
+.img_cont_msg {
+  cursor: pointer;
 }
 </style>

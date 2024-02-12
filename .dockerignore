@@ -1,12 +1,27 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/vendor
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
 bootstrap/cache/*
 
 storage/app/*
 storage/framework/cache/*
 storage/framework/sessions/*
+storage/framework/testing/*
 storage/framework/views/*
 storage/logs/*
-
-node_modules
 
 .git
 .idea
@@ -15,31 +30,14 @@ node_modules
 .sass-cache
 *.env*
 
-*.config.js
-
 .dockerignore
 Dockerfile
 docker-compose.yml
-.docker/*
-!.docker/supervisor*
-!.docker/php
-!.docker/docker-entrypoint.sh
-
-.vscode
-.idea
+.docker/*/**
+!.docker/*/supervisor*
 
 README.md
 .editorconfig
 
-vendor
-
-# ignore frontend built files
-public/js/app.js
-public/js/manifest.js
-public/js/vendor.js
-public/css/app.css
-public/mix-manifest.json
-
-./supervisord*
-
-horizon.log
+logs
+*.log

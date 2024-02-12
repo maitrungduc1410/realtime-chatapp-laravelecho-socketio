@@ -1,21 +1,22 @@
 <template>
-  <footer id="footer" class="w-100">
+  <footer
+    id="footer"
+    class="w-100"
+  >
     <div>
-        This demo using Laravel, VueJS, Laravel Echo, Redis, SocketIO.
-        <a href="https://github.com/maitrungduc1410/realtime-chatapp-laravelecho-socketio" target="_blank">
-            (Source code)
-        </a>
+      This demo using Laravel, VueJS, Laravel Echo, Redis, SocketIO.
+      <a
+        href="https://github.com/maitrungduc1410/realtime-chatapp-laravelecho-socketio"
+        target="_blank"
+      >
+        (Source code)
+      </a>
     </div>
     <div>
-        Broadcast through Presence Channel for Shared Room and Private Channel for private message
+      Broadcast through Presence Channel for Shared Room and Private Channel for private message
     </div>
-</footer>
+  </footer>
 </template>
-
-<script>
-export default {
-}
-</script>
 
 <style>
 footer {
@@ -26,6 +27,7 @@ footer {
   bottom: 0;
   font-size: 13px;
   font-weight: 300;
+  z-index: 1;
 }
 
 @media only screen and (max-width: 768px) {
@@ -36,5 +38,4 @@ footer {
 
 footer a {
   color: #00ffe9;
-}
-</style>
+}</style>

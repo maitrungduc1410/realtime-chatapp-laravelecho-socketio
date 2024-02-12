@@ -1,38 +1,26 @@
 {
     "private": true,
+    "type": "module",
     "scripts": {
-        "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "npm run development -- --watch",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "dev": "vite",
+        "build": "vite build"
     },
     "devDependencies": {
-        "eslint": "^6.8.0",
-        "eslint-config-standard": "^14.1.1",
-        "eslint-plugin-import": "^2.20.2",
-        "eslint-plugin-node": "^10.0.0",
-        "eslint-plugin-promise": "^4.2.1",
-        "eslint-plugin-standard": "^4.0.1",
-        "eslint-plugin-vue": "^6.2.2"
+        "@popperjs/core": "^2.11.6",
+        "@vitejs/plugin-vue": "^4.5.0",
+        "axios": "^1.6.7",
+        "bootstrap": "^5.2.3",
+        "laravel-vite-plugin": "^1.0.0",
+        "sass": "^1.56.1",
+        "vite": "^5.0.0",
+        "vue": "^3.2.37"
     },
     "dependencies": {
-        "axios": "^0.19.2",
-        "canvas-confetti": "^1.2.0",
-        "cross-env": "^5.1",
-        "jquery": "^3.5.0",
-        "laravel-echo": "^1.7.0",
-        "laravel-mix": "^5.0.5",
-        "lodash": "^4.17.19",
-        "resolve-url-loader": "^2.3.1",
-        "sanitize-html": "^1.23.0",
-        "sass": "^1.26.5",
-        "sass-loader": "7.*",
-        "socket.io-client": "^2.3.0",
-        "vue": "^2.6.11",
-        "vue-router": "^3.1.6",
-        "vue-template-compiler": "^2.6.11"
+        "canvas-confetti": "^1.9.2",
+        "dompurify": "^3.0.8",
+        "jquery": "^3.7.1",
+        "laravel-echo": "^1.15.3",
+        "lodash": "^4.17.21",
+        "vue-router": "^4.2.5"
     }
 }

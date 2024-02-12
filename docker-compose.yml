@@ -1,15 +1,14 @@
-version: '3'
-services:
+version: "3.7"
 
+services:
   #PHP Service
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: unless-stopped
-    working_dir: /var/www/html
+    restart: always
     volumes:
-      - ./:/var/www/html
+      - ./:/app
     networks:
       - app-network
       - queue-network
@@ -21,41 +20,47 @@ services:
 
   #Nginx Service
   webserver:
-    image: nginx:alpine
-    restart: unless-stopped
+    image: nginx:1.25.3-alpine
+    restart: always
     ports:
-      - "${APP_PORT}:80"
+      - "8000:80"
+    working_dir: /app
     volumes:
-      - ./:/var/www/html
-      - .docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./:/app
+      - .docker/root/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - app-network
     healthcheck:
-      test: wget --quiet --tries=1 --spider http://localhost || exit 1z
+      test: wget --quiet --tries=1 --spider http://localhost:80 || exit 1z
       interval: 30s
       timeout: 10s
       retries: 5
+    depends_on:
+      - app
+      - laravel_echo_server
+
   # DB UI management service
   adminer:
-    image: adminer
-    restart: unless-stopped
+    image: adminer:4.8.1
+    restart: always
     ports:
-      - ${ADMINER_PORT}:8080
+      - 8001:8080
     networks:
       - db-network
+    depends_on:
+      - db
 
   #MySQL Service
   db:
-    image: mysql:5.7.22
-    restart: unless-stopped
+    image: mysql:8
+    restart: always
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: rootpass
     volumes:
-      - .docker/data/db:/var/lib/mysql/
-      - .docker/mysql/my.cnf:/etc/mysql/my.cnf
+      - .docker/root/data/db:/var/lib/mysql/
     networks:
       - db-network
     healthcheck:
@@ -63,14 +68,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      
+
   laravel_echo_server:
     build:
-      context: .docker/laravel-echo
+      context: .docker/root/laravel-echo
       dockerfile: Dockerfile
     volumes:
       - .env:/app/.env
-    restart: unless-stopped
+      - ./logs/laravel-echo:/app/logs
+    restart: always
     networks:
       - queue-network # laravel echo needs to access to redis to take message and broadcast
       - app-network # laravel echo needs to access app network to authenticate through webserver
@@ -81,15 +87,15 @@ services:
       retries: 5
 
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
-      - .docker/data/redis:/data
-    restart: unless-stopped
+      - .docker/root/data/redis:/data
+    restart: always
     networks:
       - queue-network
     healthcheck:
-      test: ["CMD", "redis-cli","ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5

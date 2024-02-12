@@ -1,5 +1,5 @@
 # Introduction
-Realtime chat app with Laravel, VueJS, Laravel Echo, SocketIO, Redis including Queue, Schedule Task, Laravel Horizon
+Realtime chat app with Laravel, VueJS, Laravel Echo, SocketIO, Redis including Queue, Schedule Task, Laravel Horizon, Laravel Telescope and Laravel Pulse
 
 ## Overview
 This app contains following features:
@@ -9,8 +9,9 @@ This app contains following features:
 - Notification to user on receiving message (both on side bar and on Topbar of browser)
 - Bot scheduled message
 - Message reaction like Facebook Messenger (Realtime notify others on reaction)
-- Celebration animation
+- Confetti Celebration animation
 - Change message color (private chat)
+- Adminer - database management
 ## Screenshots
 
 ![Realtime chat app](./public/intro_images/overview.png "App overview")
@@ -21,140 +22,117 @@ This app contains following features:
 <img src="./public/intro_images/seen.png" width="200" alt="Seen message">
 <img src="./public/intro_images/message_color.png" width="200" alt="Message color">
 <img src="./public/intro_images/celebrate.png" width="400" alt="Celebrate">
+<img src="./public/intro_images/adminer.png" width="400" alt="Adminer">
 <img src="./public/intro_images/horizon.png" width="400" alt="Horizon">
+<img src="./public/intro_images/telescope.png" width="400" alt="Telescope">
+<img src="./public/intro_images/pulse.png" width="400" alt="Pulse">
 </div>
 
-# Installation
-## Prerequisite
-Check if you have `redis` installed, by running command: `redis-cli`
-
-Note: If you're using Windows then install `Redis` may be harder than MacOS and Linux. Then you can consider running with Docker (as described in next section)
-## Install guide
-Clone this project.
-
-Run the following commands:
+# Run with Docker
+## As root user (simpler)
+First create `.env` by copying content from `.env.docker.example`:
 ```
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-npm install -g laravel-echo-server
+cp .env.docker.example .env
+```
+Next build and spin up the project:
+```
+docker compose up -d --build
 ```
 
-Then setup your database infor in `.env` to match yours
+<details>
+  <summary>Next we need to install dependencies for both Laravel and Frontend (VueJS):</summary>
+  
+  ```shell
+  # MacOS + Linux
+  docker run --rm -v $(pwd):/app -w /app prooph/composer:8.2 install
 
-Now, migrate and seed the database:
-```
-php artisan migrate --seed
-```
+  docker run --rm -v $(pwd):/app -w /app prooph/composer:8.2 dump-autoload
 
-Next, config Laravel echo server by running:
-```
-laravel-echo-server init
-```
-Just choose `Yes`, and remember to choose `redis` and `http`
+  docker run --rm -v $(pwd):/app -w /app node:20-alpine npm install
 
-After that change `MIX_FRONTEND_PORT` in `.env` to 6001 (match `laravel-echo-server` port)
-## Run the app
-To run the app, run the following commands, each command in **a separate terminal**:
-```
-php artisan serve
-npm run watch
-laravel-echo-server start
-php artisan queue:work
-```
+  docker run --rm -v $(pwd):/app -w /app node:20-alpine npm run build
 
-Now access your app at `localhost:8000`, register an account and try, open another browser tab with another account to test realtime chat.
 
-# Demo
-You can view a real demo here: https://realtime-chat.jamesisme.com
+  # If Windows see below:
 
-# Running with docker
-## Pre-install
-Make sure you installed `docker` and `docker-compose`
-## Guide
-First create `.env` file
-```
-cp .env.example .env
-```
-Edit `.env` update the following parts:
-```bash
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=laraveluser
-DB_PASSWORD=laraveluserpass
+  # Git bash
+  docker run --rm -v "/$(pwd)":/app -w //app prooph/composer:8.2 install
 
-...
+  docker run --rm -v "/$(pwd)":/app -w //app prooph/composer:8.2 dump-autoload
 
-REDIS_HOST=redis
-REDIS_PASSWORD=redis_pass
-REDIS_PORT=6379
+  docker run --rm -v "/$(pwd)":/app -w //app node:20-alpine npm install
 
-...
+  docker run --rm -v "/$(pwd)":/app -w //app node:20-alpine npm run build
 
-LARAVEL_ECHO_SERVER_REDIS_HOST=redis
-LARAVEL_ECHO_SERVER_REDIS_PORT=6379
-LARAVEL_ECHO_SERVER_REDIS_PASSWORD=redis_pass
-LARAVEL_ECHO_SERVER_AUTH_HOST=http://webserver:80
-LARAVEL_ECHO_SERVER_DEBUG=false
+  # PowerShell
+  docker run --rm -v "$(pwd):/app" -w /app prooph/composer:8.2 install
 
-...
+  docker run --rm -v "$(pwd):/app" -w /app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -v "$(pwd):/app" -w /app node:20-alpine npm install
+
+  docker run --rm -v "$(pwd):/app" -w /app node:20-alpine npm run build
+
+  # Command Prompt
+  docker run --rm -v "%cd%:/app" -w /app prooph/composer:8.2 install
+
+  docker run --rm -v "%cd%:/app" -w /app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -v "%cd%:/app" -w /app node:20-alpine npm install
+
+  docker run --rm -v "%cd%:/app" -w /app node:20-alpine npm run build
+
+  ```
+</details>
+
+<br>
+
+Next, generate app key + migrate/seed database:
+```shell
+docker compose exec app php artisan key:generate
+
+docker compose exec app php artisan migrate --seed
 ```
 
-Next, Run the following commands:
-```
-docker run --rm -v $(pwd):/app -w /app composer install --ignore-platform-reqs --no-autoloader --no-dev --no-interaction --no-progress --no-suggest --no-scripts --prefer-dist
-docker run --rm -v $(pwd):/app -w /app composer dump-autoload --classmap-authoritative --no-dev --optimize
-docker run --rm -v $(pwd):/app -w /app node npm install --production
-docker run --rm -v $(pwd):/app -w /app node npm run prod
-```
-The commands above are equivalent with: 
-- **composer install <...other options>**
-- **composer dump-autoload <...other options>**
-- **npm install --production**
-- **npm run prod**
+Finally you can access the app at `http://localhost:8000`
 
-## Bootstrap application
+Adminer (database management) can access the app at `http://localhost:8001`
 
-Run the following command to start application:
-```
-docker-compose up -d --build
-```
-Now we need to generate project's key migrate and seed database. Run command:
-```
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate --seed
-```
+Laravel Horizon can be accessed at `http://localhost:8000/hoziron`
 
-Now access the app at: `localhost:4000`
+Laravel Telescope can be accessed at `http://localhost:8000/telescope`
 
-If you want to change to another port instead of `4000`. Change `APP_PORT` and `MIX_FRONTEND_PORT` to the same one you want. Then run following command to rebuild frontend:
-```
-docker run --rm -v $(pwd):/app -w /app node npm run prod
-```
+Laravel Pulse can be accessed at `http://localhost:8000/pulse`
 
-## Note
-Every command with **Laravel** you need to run it like follow:
+## As non-root user (better, recommended for production)
+At very first step, change ownership of all files in current directory to be under user `1000:1000`:
+
 ```
-docker-compose exec app php artisan <same like normal>
+sudo chown -R 1000:1000 .
+```
+This is because later all containers will run with that user, and since we mount volume from host machine to container, and the permission of files from host container takes precedence therefore we need to sync permission between both environments
+
+Follow all steps above same as when running with root user but update the following:
+- in `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`
+- all `docker compose --rm` commands you should add `-u 1000:1000`, for example:
+```shell
+docker run --rm -u 1000:1000 -v $(pwd):/app -w /app prooph/composer:8.2 install
+
+docker run --rm -u 1000:1000 -v $(pwd):/app -w /app node:20-alpine npm install
+```
+- all `docker compose` commands now you need to add `-f docker-compose.non-root.yml`, for example:
+```shell
+docker compose -f docker-compose.non-root.yml up -d --build 
+
+docker compose -f docker-compose.non-root.yml exec app php artisan key:generate
+
+docker compose -f docker-compose.non-root.yml exec app php artisan migrate --seed
 ```
 
-Every command with **composer** need to run like follow:
+And you need 1 extra step to start cronjob:
 ```
-docker run --rm -v $(pwd):/app -w /app composer <same like normal>
+docker compose -f docker-compose.non-root.yml exec -u root app crond -b
 ```
+> Because crontab needs to start with root in order to work, but our actually will still be guaranteed to run as non-root, check Dockerfile.non-root for more details
 
-Every command with **npm** need to run like follow:
-```
-docker run --rm -v $(pwd):/app -w /app node npm run dev/watch/prod
-```
-
-## Deploy to production
-When deploying to production, normally you'll run you app with HTTPS (port 443), then your frontend will be served under HTTPS too. So changing the `MIX_FRONTEND_PORT` in `.env` to 443.
-
-Other settings are same
-
-## Run containers as non-root user
-If you're looking for running this app with Docker using non-root users (which is highly recommended in production), then checkout my `docker-non-root` branch
+Finally you can access the app at `http://localhost:8000`

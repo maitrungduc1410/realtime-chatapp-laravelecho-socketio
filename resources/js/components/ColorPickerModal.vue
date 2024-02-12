@@ -1,9 +1,54 @@
+<script setup>
+import { ref, defineEmits } from 'vue'
+
+defineEmits(['hide', 'selectColor'])
+
+const colors = ref([
+  {
+    value: '#0084ff'
+  },
+  {
+    value: '#44bec7'
+  },
+  {
+    value: '#ffc300'
+  },
+  {
+    value: '#fa3c4c'
+  },
+  {
+    value: '#d696bb'
+  },
+  {
+    value: '#42e274'
+  },
+  {
+    value: '#ff7e28'
+  },
+  {
+    value: '#e68585'
+  },
+  {
+    value: '#7646ff'
+  },
+  {
+    value: '#1fcef5'
+  },
+  {
+    value: '#ff5ba1'
+  }
+])
+</script>
+
 <template>
   <div class="color-palette">
     <div class="color-palette-container">
       <h5 class="color-palette-header p-2">
-          Customise your chat
-        <i class="fal fa-times float-right" @click="$emit('hide')"></i>
+        Customise your chat
+        <i
+          class="fal fa-times float-end"
+          @click="$emit('hide')"
+        ></i>
       </h5>
       <div class="color-palette-body d-flex flex-wrap p-4 justify-content-center">
         <div
@@ -13,58 +58,18 @@
         >
           <div
             class="color-item"
-            :style="{'background-color': c.value}"
-            @click="$emit('selectColor', c.value)"></div>
+            :style="{ 'background-color': c.value }"
+            @click="$emit('selectColor', c.value)"
+          ></div>
         </div>
       </div>
     </div>
-      <div class="color-palette-overlay" @click="$emit('hide')"></div>
+    <div
+      class="color-palette-overlay"
+      @click="$emit('hide')"
+    ></div>
   </div>
 </template>
-
-<script>
-export default {
-  data () {
-    return {
-      colors: [
-        {
-          value: '#0084ff'
-        },
-        {
-          value: '#44bec7'
-        },
-        {
-          value: '#ffc300'
-        },
-        {
-          value: '#fa3c4c'
-        },
-        {
-          value: '#d696bb'
-        },
-        {
-          value: '#42e274'
-        },
-        {
-          value: '#ff7e28'
-        },
-        {
-          value: '#e68585'
-        },
-        {
-          value: '#7646ff'
-        },
-        {
-          value: '#1fcef5'
-        },
-        {
-          value: '#ff5ba1'
-        }
-      ]
-    }
-  }
-}
-</script>
 
 <style lang="scss">
 .color-palette {
@@ -73,6 +78,7 @@ export default {
   left: 0;
   bottom: 0;
   right: 0;
+
   .color-palette-container {
     background-color: white;
     border-radius: 4px;
@@ -82,17 +88,21 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
     .color-palette-header {
       border-bottom: solid 1px #ddd;
+
       i {
         margin-top: 3px;
         cursor: pointer;
         color: #7b7b7b;
+
         &:hover {
           color: black;
         }
       }
     }
+
     .color-palette-body {
       .color-item-container {
         border-radius: 20px;
@@ -100,9 +110,11 @@ export default {
         margin-left: 4px;
         margin-right: 4px;
         padding: 8px;
+
         &:hover {
           background: #e6f2ff;
         }
+
         .color-item {
           border-radius: 50%;
           height: 50px;
@@ -111,6 +123,7 @@ export default {
       }
     }
   }
+
   .color-palette-overlay {
     position: absolute;
     background-color: #00000066;

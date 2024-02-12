@@ -6,33 +6,22 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
 use App\Events\BotNotification;
-use App\Chatroom;
+use App\Models\Chatroom;
 
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        //
-    ];
-
-    /**
      * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
+        // $schedule->command('inspire')->hourly();
         $schedule->call(function () {
             $quotes = [
-                'Detect typing and Seen message are available in Private Chat. Select an user from The right Sidebar and start Private Chat',
-                'You can react to other user\'s message (Love, Haha, Angry,...)',
-                'Try type \'Chuc mung\', \'Congrats\' or \'Congratulations\' to see animation',
-                'You can change your message color in Private chat'
+                'Bot: Detect typing and Seen message are available in Private Chat. Select an user from The right Sidebar and start Private Chat',
+                'Bot: You can react to other user\'s message (Love, Haha, Angry,...)',
+                'Bot: Try type \'Chuc mung\', \'Congrats\' or \'Congratulations\' to see animation',
+                'Bot: You can change your message color in Private chat'
             ];
 
             $chatrooms = Chatroom::all();
@@ -46,14 +35,14 @@ class Kernel extends ConsoleKernel
 
             Log::info('Bot notification sent');
         })->everyMinute();
+
+        $schedule->command('telescope:prune')->monthly();
     }
 
     /**
      * Register the commands for the application.
-     *
-     * @return void
      */
-    protected function commands()
+    protected function commands(): void
     {
         $this->load(__DIR__.'/Commands');
 
