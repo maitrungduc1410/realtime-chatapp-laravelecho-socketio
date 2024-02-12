@@ -112,27 +112,90 @@ sudo chown -R 1000:1000 .
 ```
 This is because later all containers will run with that user, and since we mount volume from host machine to container, and the permission of files from host container takes precedence therefore we need to sync permission between both environments
 
-Follow all steps above same as when running with root user but update the following:
-- in `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`
-- all `docker compose --rm` commands you should add `-u 1000:1000`, for example:
-```shell
-docker run --rm -u 1000:1000 -v $(pwd):/app -w /app prooph/composer:8.2 install
+> [!TIP]
+> You can choose any other user than `1000:1000`, but make sure to use 1 user across steps below
 
-docker run --rm -u 1000:1000 -v $(pwd):/app -w /app node:20-alpine npm install
+Next create `.env` by copying content from `.env.docker.example`:
 ```
-- all `docker compose` commands now you need to add `-f docker-compose.non-root.yml`, for example:
-```shell
-docker compose -f docker-compose.non-root.yml up -d --build 
+cp .env.docker.example .env
+```
+In `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`
 
+Next build and spin up the project:
+```
+docker compose -f docker-compose.non-root.yml up -d --build
+```
+
+<details>
+  <summary>Next we need to install dependencies for both Laravel and Frontend (VueJS):</summary>
+  
+  ```shell
+  # MacOS + Linux
+  docker run --rm -u 1000:1000 -v $(pwd):/app -w /app prooph/composer:8.2 install
+
+  docker run --rm -u 1000:1000 -v $(pwd):/app -w /app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -u 1000:1000 -v $(pwd):/app -w /app node:20-alpine npm install
+
+  docker run --rm -u 1000:1000 -v $(pwd):/app -w /app node:20-alpine npm run build
+
+
+  # If Windows see below:
+
+  # Git bash
+  docker run --rm -u 1000:1000 -v "/$(pwd)":/app -w //app prooph/composer:8.2 install
+
+  docker run --rm -u 1000:1000 -v "/$(pwd)":/app -w //app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -u 1000:1000 -v "/$(pwd)":/app -w //app node:20-alpine npm install
+
+  docker run --rm -u 1000:1000 -v "/$(pwd)":/app -w //app node:20-alpine npm run build
+
+  # PowerShell
+  docker run --rm -u 1000:1000 -v "$(pwd):/app" -w /app prooph/composer:8.2 install
+
+  docker run --rm -u 1000:1000 -v "$(pwd):/app" -w /app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -u 1000:1000 -v "$(pwd):/app" -w /app node:20-alpine npm install
+
+  docker run --rm -u 1000:1000 -v "$(pwd):/app" -w /app node:20-alpine npm run build
+
+  # Command Prompt
+  docker run --rm -u 1000:1000 -v "%cd%:/app" -w /app prooph/composer:8.2 install
+
+  docker run --rm -u 1000:1000 -v "%cd%:/app" -w /app prooph/composer:8.2 dump-autoload
+
+  docker run --rm -u 1000:1000 -v "%cd%:/app" -w /app node:20-alpine npm install
+
+  docker run --rm -u 1000:1000 -v "%cd%:/app" -w /app node:20-alpine npm run build
+
+  ```
+</details>
+
+<br>
+
+Next, generate app key + migrate/seed database:
+```shell
 docker compose -f docker-compose.non-root.yml exec app php artisan key:generate
 
 docker compose -f docker-compose.non-root.yml exec app php artisan migrate --seed
 ```
 
+Finally you can access the app at `http://localhost:8000`
+
+Adminer (database management) can access the app at `http://localhost:8001`
+
+Laravel Horizon can be accessed at `http://localhost:8000/hoziron`
+
+Laravel Telescope can be accessed at `http://localhost:8000/telescope`
+
+Laravel Pulse can be accessed at `http://localhost:8000/pulse`
+
 And you need 1 extra step to start cronjob:
 ```
 docker compose -f docker-compose.non-root.yml exec -u root app crond -b
 ```
+> [!NOTE]
 > Because crontab needs to start with root in order to work, but our actually will still be guaranteed to run as non-root, check Dockerfile.non-root for more details
 
 Finally you can access the app at `http://localhost:8000`
