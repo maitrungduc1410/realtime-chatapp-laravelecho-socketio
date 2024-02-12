@@ -195,7 +195,9 @@ Laravel Pulse can be accessed at `http://localhost:8000/pulse`
 
 And you need 1 extra step to start cronjob:
 ```
-docker compose -f docker-compose.non-root.yml exec -u root app crond -b
+docker compose -f docker-compose.non-root.yml exec -u root app sh
+
+crond -b
 ```
 > [!NOTE]
 > Because crontab needs to start with root in order to work, but our actually will still be guaranteed to run as non-root, check Dockerfile.non-root for more details

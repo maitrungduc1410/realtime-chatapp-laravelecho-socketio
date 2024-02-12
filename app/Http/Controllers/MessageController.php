@@ -20,6 +20,10 @@ class MessageController extends Controller
     }
 
     public function store (Request $request) {
+        $request->validate([
+            'content' => 'required|max:2000',
+        ]);
+
         $message = new Message();
         $message->sender = Auth::user()->id;
         $message->content = $request->input('content', '');

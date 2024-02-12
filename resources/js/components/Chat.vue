@@ -15,6 +15,7 @@ import { Tooltip } from "bootstrap";
 import ColorPickerModal from "./ColorPickerModal.vue";
 import { throttle } from "lodash";
 import DOMPurify from "dompurify";
+import { AxiosError } from 'axios'
 
 const props = defineProps({
   isPrivate: {
@@ -54,6 +55,7 @@ const isShowEmoji = ref(false);
 const selectedMessage = ref(null);
 const $Echo = inject("$Echo");
 const user = inject("$user");
+const showToast = inject("$showToast");
 
 // metadata for pagination, not related to rendering so we just make it primitive JS vars
 let currentPage = 0;
@@ -219,6 +221,10 @@ async function selectEmoji(emoji) {
     hideEmoji();
   } catch (error) {
     console.log(error);
+
+    if (error instanceof AxiosError) {
+      showToast('Error', error.response.data.message)
+    }
   }
 }
 
@@ -266,6 +272,9 @@ async function saveMessage() {
     scrollToBottom(messageContainer.value, true);
   } catch (error) {
     console.log(error);
+    if (error instanceof AxiosError) {
+      showToast('Error', error.response.data.message)
+    }
   }
 }
 
@@ -290,6 +299,9 @@ async function getMessages(room, page = 1, loadMore = false) {
     }
   } catch (error) {
     console.log(error);
+    if (error instanceof AxiosError) {
+      showToast('Error', error.response.data.message)
+    }
   } finally {
     isLoadingMessages.value = false;
   }
@@ -489,7 +501,9 @@ const onInputPrivateChange = throttle(function () {
         @keyup.enter="saveMessage"
         @input="onInputPrivateChange"
         ref="privateInputEl"
+        maxlength="2000"
       />
+      <small class="float-end mt-1 me-1">{{ inputMessage.length }}/2000</small>
     </div>
     <div class="card-footer" v-else>
       <div class="input-group">
@@ -500,11 +514,13 @@ const onInputPrivateChange = throttle(function () {
           placeholder="Type your message..."
           @keyup.enter="saveMessage"
           autofocus
+          maxlength="2000"
         />
         <span class="input-group-text send_btn"
           ><i class="fas fa-location-arrow"></i
         ></span>
       </div>
+      <small class="float-end text-white mt-1">{{ inputMessage.length }}/2000</small>
     </div>
     <Emoji
       :emojiCoordinates="emojiCoordinates"
@@ -666,7 +682,6 @@ const onInputPrivateChange = throttle(function () {
       border-top: solid 1px #ddd;
       outline: none;
       padding: 7px;
-      font-size: 12px;
     }
   }
 

@@ -2,6 +2,7 @@
 import { ref, watch, provide } from "vue";
 import Footer from "./components/Footer.vue";
 import { useRoute } from "vue-router";
+import { Toast } from "bootstrap";
 // provide this for all children
 // globalProperties doesn't help here since in children we're accessing in <script>
 provide("$rooms", window.__app__.rooms); // we always have user if they login as we return user object in app.blade.php
@@ -10,6 +11,7 @@ provide("$emojis", window.__app__.emojis);
 provide("$appName", window.__app__.appName);
 provide("$confettiWords", window.__app__.confettiWords);
 provide("$Echo", window.Echo);
+provide("$showToast", showToast);
 
 const csrfToken = ref(
   document.head.querySelector('meta[name="csrf-token"]').content
@@ -17,6 +19,10 @@ const csrfToken = ref(
 const transitionName = ref("fade");
 const route = useRoute();
 const appName = window.__app__.appName;
+const toastMsg = ref({
+  title: "Title",
+  message: "Message",
+});
 
 watch(
   () => route.name,
@@ -28,6 +34,17 @@ watch(
     }
   }
 );
+
+function showToast(title, message) {
+  toastMsg.value = {
+    title,
+    message,
+  };
+  const toastEl = document.getElementById("bs_toast");
+
+  const toastBootstrap = Toast.getOrCreateInstance(toastEl);
+  toastBootstrap.show();
+}
 </script>
 
 <template>
@@ -97,6 +114,27 @@ watch(
       </router-view>
     </div>
     <Footer />
+  </div>
+
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div
+      id="bs_toast"
+      class="toast"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="toast-header">
+        <strong class="me-auto">{{ toastMsg.title }}</strong>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="toast-body">{{ toastMsg.message }}</div>
+    </div>
   </div>
 </template>
 
