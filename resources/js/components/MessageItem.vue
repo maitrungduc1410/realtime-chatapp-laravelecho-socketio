@@ -19,8 +19,10 @@ const props = defineProps({
   },
 });
 
+const MAX_CONTENT_LENGTH = 300
 const emit = defineEmits(["showEmoji", "selectReceiver"]);
 const $el = ref(null);
+const hideContent = ref(props.message.content.length > MAX_CONTENT_LENGTH);
 const user = inject("$user");
 const confettiWords = inject("$confettiWords");
 
@@ -112,7 +114,19 @@ function celebrate(event) {
             : ''
         "
       >
-        <div v-html="highlight" @click="celebrate"></div>
+        <div
+          :class="{ 'hide-content': hideContent }"
+          v-html="highlight"
+          @click="celebrate"
+        ></div>
+        <button 
+          v-if="props.message.content.length > MAX_CONTENT_LENGTH"
+          type="button"
+          class="btn btn-link text-decoration-none"
+          @click="hideContent = !hideContent"
+        >
+          View {{ hideContent ? 'More' : 'Less' }}
+        </button>
         <Reaction
           v-if="message.reactions.length"
           :reactions="message.reactions"
@@ -190,6 +204,11 @@ function celebrate(event) {
         color: white;
       }
     }
+  }
+
+  .hide-content {
+    height: 100px;
+    overflow: hidden;
   }
 }
 
