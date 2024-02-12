@@ -9,6 +9,7 @@ import {
   inject,
   nextTick,
   computed,
+  watch,
 } from "vue";
 import { Tooltip } from "bootstrap";
 import ColorPickerModal from "./ColorPickerModal.vue";
@@ -73,6 +74,50 @@ onBeforeMount(() => {
 });
 
 onBeforeMount(() => {
+  initChat();
+});
+
+onMounted(() => {
+  if (props.isPrivate) {
+    focusPrivateInput();
+  }
+
+  $(messageContainer.value).on("scroll", async () => {
+    const scroll = $(messageContainer.value).scrollTop();
+    if (scroll < 1 && currentPage < lastPage) {
+      getMessages(props.roomId, currentPage + 1, true);
+    }
+  });
+
+  const tooltipTriggerList = rootEl.value.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+  );
+  [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+  );
+});
+
+onBeforeUnmount(() => {
+  $(messageContainer.value).off("scroll");
+  $Echo.leave(`room.${props.roomId}`);
+});
+
+watch(
+  () => props.roomId,
+  (newVal, oldVal) => {
+    $Echo.leave(`room.${oldVal}`); // leave previous channel
+
+    initChat();
+  }
+);
+
+function initChat() {
+  inputMessage.value = ''
+  messages.value = [];
+  privateHasNewMessage.value = false;
+  isTyping.value = false;
+  isSeen.value = false;
+  
   getMessages(props.roomId);
 
   if (props.isPrivate) {
@@ -121,32 +166,7 @@ onBeforeMount(() => {
         onReaction(e.reaction);
       });
   }
-});
-
-onMounted(() => {
-  if (props.isPrivate) {
-    focusPrivateInput();
-  }
-
-  $(messageContainer.value).on("scroll", async () => {
-    const scroll = $(messageContainer.value).scrollTop();
-    if (scroll < 1 && currentPage < lastPage) {
-      getMessages(props.roomId, currentPage + 1, true);
-    }
-  });
-
-  const tooltipTriggerList = rootEl.value.querySelectorAll(
-    '[data-bs-toggle="tooltip"]'
-  );
-  [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
-  );
-});
-
-onBeforeUnmount(() => {
-  $(messageContainer.value).off("scroll");
-  $Echo.leave(`room.${props.roomId}`);
-});
+}
 
 function toggleColorPicker() {
   isShowColorPicker.value = !isShowColorPicker.value;

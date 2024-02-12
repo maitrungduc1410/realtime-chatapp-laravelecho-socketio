@@ -34,6 +34,8 @@ First create `.env` by copying content from `.env.docker.example`:
 ```
 cp .env.docker.example .env
 ```
+If your app uses HTTPS then update `APP_FORCE_HTTPS=true` in `.env`
+
 Next build and spin up the project:
 ```
 docker compose up -d --build
@@ -105,7 +107,13 @@ Laravel Telescope can be accessed at `http://localhost:8000/telescope`
 Laravel Pulse can be accessed at `http://localhost:8000/pulse`
 
 ## As non-root user (better, recommended for production)
-At very first step, change ownership of all files in current directory to be under user `1000:1000`:
+First create `.env` by copying content from `.env.docker.example`:
+```
+cp .env.docker.example .env
+```
+In `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`. If your app uses HTTPS then update `APP_FORCE_HTTPS=true`
+
+Next, change ownership of all files in current directory to be under user `1000:1000`:
 
 ```
 sudo chown -R 1000:1000 .
@@ -114,12 +122,6 @@ This is because later all containers will run with that user, and since we mount
 
 > [!TIP]
 > You can choose any other user than `1000:1000`, but make sure to use 1 user across steps below
-
-Next create `.env` by copying content from `.env.docker.example`:
-```
-cp .env.docker.example .env
-```
-In `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`
 
 Next build and spin up the project:
 ```
@@ -199,3 +201,9 @@ docker compose -f docker-compose.non-root.yml exec -u root app crond -b
 > Because crontab needs to start with root in order to work, but our actually will still be guaranteed to run as non-root, check Dockerfile.non-root for more details
 
 Finally you can access the app at `http://localhost:8000`
+
+Note that if you need to `exec` in your container you need to use:
+
+```
+docker compose -f docker-compose.non-root.yml exec app sh
+```

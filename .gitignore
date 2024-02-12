@@ -21,4 +21,10 @@ yarn-error.log
 logs/**/*[.log, .pid]
 !logs/.gitkeep
 *.log
+supervisord.pid
 laravel-echo-server.lock
+
+.docker/*/data/db/*
+!.docker/*/data/db/.gitkeep
+.docker/*/data/redis/*
+!.docker/*/data/redis/.gitkeep

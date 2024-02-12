@@ -41,4 +41,5 @@ README.md
 
 logs
 *.log
+supervisord.pid
 laravel-echo-server.lock
