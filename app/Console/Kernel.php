@@ -36,7 +36,8 @@ class Kernel extends ConsoleKernel
             Log::info('Bot notification sent');
         })->everyMinute();
 
-        $schedule->command('telescope:prune')->monthly();
+        $schedule->command('telescope:prune')->daily();
+        $schedule->command('pulse:clear')->weekly();
     }
 
     /**
