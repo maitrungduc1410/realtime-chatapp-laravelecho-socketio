@@ -21,14 +21,12 @@ RUN rm -rf /var/cache/apk/*
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 #-----------SUPERVISOR------------
-COPY .docker/root/supervisord.conf /etc/supervisord.conf
-
-
+COPY .docker/non-root/supervisord.conf /etc/supervisord.conf
 
 # Laravel horizon
 # Note that Horizon already includes worker
 # Otherwise we need to run queue:work manually to spawn workers
-COPY .docker/root/supervisor.d /etc/supervisor.d
+COPY .docker/non-root/supervisor.d /etc/supervisor.d
 
 # Copy existing application directory permissions
 COPY . .
