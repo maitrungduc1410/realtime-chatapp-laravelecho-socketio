@@ -34,7 +34,10 @@ First create `.env` by copying content from `.env.docker.example`:
 ```
 cp .env.docker.example .env
 ```
-If your app uses HTTPS then update `APP_FORCE_HTTPS=true` in `.env`
+
+In `.env`:
+- update `VITE_LARAVEL_ECHO_SERVER_PORT=80` (or 443 if you're using HTTPS)
+- if your app uses HTTPS then update `APP_FORCE_HTTPS=true`
 
 Next build and spin up the project:
 ```
@@ -111,7 +114,10 @@ First create `.env` by copying content from `.env.docker.example`:
 ```
 cp .env.docker.example .env
 ```
-In `.env` change `LARAVEL_ECHO_SERVER_AUTH_HOST` to `http://webserver:8080`. If your app uses HTTPS then update `APP_FORCE_HTTPS=true`
+In `.env`:
+- update `LARAVEL_ECHO_SERVER_AUTH_HOST=http://webserver:8080`
+- update `VITE_LARAVEL_ECHO_SERVER_PORT=80` (or 443 if you're using HTTPS)
+- if your app uses HTTPS then update `APP_FORCE_HTTPS=true`
 
 Next, change ownership of all files in current directory to be under user `1000:1000`:
 
