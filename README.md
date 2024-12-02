@@ -95,7 +95,7 @@ Laravel Telescope can be accessed at `http://localhost:8000/telescope`
 Laravel Pulse can be accessed at `http://localhost:8000/pulse`
 
 ## As non-root user (better, recommended for production)
-First create folder `.docker` at root folder project, this is to store MySQL data (when running as non-root user we should not leave it for Docker to create automatically because it'll be owned by root)
+First, from root folder project, create folder `.docker/data/db`, this is to store MySQL data (when running as non-root user we should not leave it for Docker to create automatically because it'll be owned by root)
 
 Then create `.env` from `.env.docker`
 
