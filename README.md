@@ -191,6 +191,8 @@ VITE_REVERB_SCHEME="http"
 
 VITE_REVERB_PORT="443"
 VITE_REVERB_SCHEME="https"
+
+APP_FORCE_HTTPS=true
 ```
 
 You **only** need to do this for Frontend (VITE_* variables), from server side, communication is still internally within Docker, hence `REVERB_PORT=8080` or `REVERB_SCHEME=http` remain unchanged
