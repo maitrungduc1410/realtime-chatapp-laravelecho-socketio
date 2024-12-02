@@ -25,10 +25,13 @@ class AppServiceProvider extends ServiceProvider
         if((bool) env('APP_FORCE_HTTPS', false)) {
             URL::forceScheme('https');
         };
-        // Gate::define('viewPulse', function (User $user) {
-        //     return in_array($user->email, [
-        //         'user@example.com',
-        //     ]);
-        // });
+        Gate::define('viewPulse', function (User $user) {
+
+            return true; // all users can view
+
+            // return in_array($user->email, [
+            //     'user@example.com',
+            // ]);
+        });
     }
 }
