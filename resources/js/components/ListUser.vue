@@ -66,12 +66,12 @@ const filteredUsersList = computed(() => {
                 >{{ user.name }}
                 {{ user.id === myUser.id ? "(You)" : "" }}</span
               >
-              <span
+              <!-- <span
                 class="badge text-bg-danger font-12px"
                 v-if="user.new_messages"
               >
                 {{ user.new_messages }}
-              </span>
+              </span> -->
               <p>{{ user.email }}</p>
             </div>
           </div>

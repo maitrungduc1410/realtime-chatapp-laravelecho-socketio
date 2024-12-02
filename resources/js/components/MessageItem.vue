@@ -1,6 +1,5 @@
 <script setup>
 import Reaction from "./Reaction.vue";
-import DOMPurify from "dompurify"; // we also need to clean data when display because old data has been cleaned
 import { Tooltip } from "bootstrap";
 import { computed, inject, onMounted, ref } from "vue";
 import confetti from "canvas-confetti";
@@ -41,12 +40,12 @@ function showEmoji(event) {
 }
 
 const highlight = computed(() => {
+  const content = props.message.content
   if (props.isPrivate) {
     // ignore if this is private message
-    return props.message.content;
+    return content
   }
 
-  const content = DOMPurify.sanitize(props.message.content);
   return content.replace(new RegExp(confettiWords, "gi"), (match) => {
     return '<span class="highlightText">' + match + "</span>";
   });
@@ -58,7 +57,7 @@ const createdAt = computed(() => {
 });
 
 const isMyUser = computed(() => {
-  return props.message.sender && props.message.sender.id === user.id;
+  return props.message.user && props.message.user.id === user.id;
 });
 
 function celebrate(event) {
@@ -77,88 +76,42 @@ function celebrate(event) {
 
 <template>
   <div ref="$el">
-    <div
-      class="msg-item d-flex justify-content-end mb-4"
-      :class="{
-        private: isPrivate,
-        'flex-row-reverse': !isMyUser,
-      }"
-    >
-      <div
-        v-if="message.type !== 'bot'"
-        class="msg-actions d-flex"
-        :class="{ 'me-2': isMyUser, 'ms-2': !isMyUser }"
-      >
+    <div class="msg-item d-flex justify-content-end mb-4" :class="{
+      private: isPrivate,
+      'flex-row-reverse': !isMyUser,
+    }">
+      <div v-if="message.type !== 'bot'" class="msg-actions d-flex" :class="{ 'me-2': isMyUser, 'ms-2': !isMyUser }">
         <div class="d-flex align-items-center">
-          <i
-            class="fal fa-grin-alt"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            data-bs-title="React"
-            @click="showEmoji"
-          ></i>
+          <i class="fal fa-grin-alt" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="React"
+            @click="showEmoji"></i>
         </div>
       </div>
-      <div
-        :class="{
-          msg_container_send: isMyUser,
-          msg_container: !isMyUser,
-          'bot-notification': message.type === 'bot',
-        }"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        :data-bs-title="createdAt"
-        :style="
-          message.receiver
-            ? `background-color: ${isMyUser ? msgColor : ''}`
-            : ''
-        "
-      >
-        <div
-          :class="{ 'hide-content': hideContent }"
-          v-html="highlight"
-          @click="celebrate"
-        ></div>
-        <button 
-          v-if="message.content.length > MAX_CONTENT_LENGTH"
-          type="button"
-          class="btn btn-link text-decoration-none"
-          @click="hideContent = !hideContent"
-        >
+      <div :class="{
+        msg_container_send: isMyUser,
+        msg_container: !isMyUser,
+        'bot-notification': message.type === 'bot',
+      }" data-bs-toggle="tooltip" data-bs-placement="top" :data-bs-title="createdAt" :style="isPrivate
+        ? `background-color: ${isMyUser ? msgColor : ''}`
+        : ''
+        ">
+        <div :class="{ 'hide-content': hideContent }" v-html="highlight" @click="celebrate"></div>
+        <button v-if="message.content.length > MAX_CONTENT_LENGTH" type="button"
+          class="btn btn-link text-decoration-none" @click="hideContent = !hideContent">
           View {{ hideContent ? 'More' : 'Less' }}
         </button>
-        <Reaction
-          v-if="message.reactions.length"
-          :reactions="message.reactions"
-        />
+        <Reaction v-if="message.reactions.length" :reactions="message.reactions" />
       </div>
-      <div
-        v-if="message.type !== 'bot'"
-        class="img_cont_msg"
-        :class="{
-          'bg-white rounded-circle d-flex justify-content-center align-items-center':
-            !isMyUser,
-        }"
-        :data-bs-toggle="isPrivate ? undefined : 'tooltip'"
-        :data-bs-placement="isPrivate ? undefined : 'top'"
-        :data-bs-title="
-          isPrivate
-            ? undefined
-            : `Click to chat with ${message.sender.name} (${message.sender.email})`
-        "
-        @click="!isPrivate && $emit('selectReceiver', message.sender)"
-      >
-        <img
-          src="/images/current_user.jpg"
-          class="rounded-circle user_img_msg"
-          v-if="isMyUser"
-        />
-        <span
-          v-else
-          class="rounded-circle d-flex justify-content-center align-items-center"
-          :style="`background-color: ${message.sender.color}`"
-          >{{ message.sender.name[0].toUpperCase() }}</span
-        >
+      <div v-if="message.type !== 'bot'" class="img_cont_msg" :class="{
+        'bg-white rounded-circle d-flex justify-content-center align-items-center':
+          !isMyUser,
+      }" :data-bs-toggle="isPrivate ? undefined : 'tooltip'" :data-bs-placement="isPrivate ? undefined : 'top'"
+        :data-bs-title="isPrivate
+          ? undefined
+          : `Click to chat with ${message.user.name} (${message.user.email})`
+          " @click="!isPrivate && $emit('selectReceiver', message.user)">
+        <img src="/images/current_user.jpg" class="rounded-circle user_img_msg" v-if="isMyUser" />
+        <span v-else class="rounded-circle d-flex justify-content-center align-items-center"
+          :style="`background-color: ${message.user.color}`">{{ message.user.name[0].toUpperCase() }}</span>
       </div>
     </div>
   </div>

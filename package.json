@@ -2,25 +2,28 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "dev": "vite"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.6",
         "@vitejs/plugin-vue": "^4.5.0",
-        "axios": "^1.6.7",
-        "bootstrap": "^5.2.3",
-        "laravel-vite-plugin": "^1.0.0",
+        "autoprefixer": "^10.4.20",
+        "concurrently": "^9.0.1",
+        "laravel-echo": "^1.17.1",
+        "laravel-vite-plugin": "^1.0",
+        "postcss": "^8.4.47",
+        "pusher-js": "^8.4.0-rc2",
         "sass": "^1.56.1",
-        "vite": "^5.0.0",
-        "vue": "^3.2.37"
+        "tailwindcss": "^3.4.13",
+        "vite": "^5.0"
     },
     "dependencies": {
-        "canvas-confetti": "^1.9.2",
-        "dompurify": "^3.0.8",
+        "axios": "^1.7.4",
+        "bootstrap": "^5.2.3",
+        "canvas-confetti": "^1.9.3",
         "jquery": "^3.7.1",
-        "laravel-echo": "^1.15.3",
-        "lodash": "^4.17.21",
-        "vue-router": "^4.2.5"
+        "vue": "^3.2.37",
+        "vue-router": "^4.5.0"
     }
 }

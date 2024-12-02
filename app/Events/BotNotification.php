@@ -9,24 +9,21 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class BotNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    public $room;
+    public $room_id;
 
     /**
      * Create a new event instance.
-     *
-     * @return void
      */
-    public function __construct($message, $room)
+    public function __construct($message, $room_id)
     {
         $this->message = $message;
-        $this->room = $room;
+        $this->room_id = $room_id;
     }
 
     /**
@@ -37,7 +34,7 @@ class BotNotification implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PresenceChannel('room.'.$this->room),
+            new PresenceChannel('room.'.$this->room_id),
         ];
     }
 }

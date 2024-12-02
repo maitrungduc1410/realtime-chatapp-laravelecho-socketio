@@ -52,7 +52,7 @@ const userReaction = computed(() => {
 
   if (props.selectedMessage) {
     for (const r of props.selectedMessage.reactions) {
-      if (r.user.id === user.id) {
+      if (r.user_id === user.id) {
         emojiId = r.emoji_id;
         reactionId = r.id;
         break;

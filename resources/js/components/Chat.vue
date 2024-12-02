@@ -14,8 +14,7 @@ import {
 import { Tooltip } from "bootstrap";
 import ColorPickerModal from "./ColorPickerModal.vue";
 import { throttle } from "lodash";
-import DOMPurify from "dompurify";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 const props = defineProps({
   isPrivate: {
@@ -23,7 +22,7 @@ const props = defineProps({
     default: false,
   },
   roomId: {
-    type: [String, Number],
+    type: Number,
     required: true,
   },
   roomName: String, // for shared room
@@ -53,9 +52,9 @@ const emojiCoordinates = ref({
 });
 const isShowEmoji = ref(false);
 const selectedMessage = ref(null);
-const $Echo = inject("$Echo");
 const user = inject("$user");
 const showToast = inject("$showToast");
+const isSavingMessage = ref(false);
 
 // metadata for pagination, not related to rendering so we just make it primitive JS vars
 let currentPage = 0;
@@ -101,13 +100,13 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   $(messageContainer.value).off("scroll");
-  $Echo.leave(`room.${props.roomId}`);
+  Echo.leave(`room.${props.roomId}`);
 });
 
 watch(
   () => props.roomId,
   (newVal, oldVal) => {
-    $Echo.leave(`room.${oldVal}`); // leave previous channel
+    Echo.leave(`room.${oldVal}`); // leave previous channel
 
     initChat();
   }
@@ -123,7 +122,7 @@ function initChat() {
   getMessages(props.roomId);
 
   if (props.isPrivate) {
-    $Echo
+    Echo
       .private(`room.${props.roomId}`) // this room to receive whisper events
       .listenForWhisper("typing", (e) => {
         isTyping.value = e.isTyping;
@@ -144,10 +143,10 @@ function initChat() {
         scrollToBottom(messageContainer.value, true);
       })
       .listen("MessageReacted", (e) => {
-        onReaction(e.reaction);
+        onReaction(e);
       });
   } else {
-    $Echo
+    Echo
       .join(`room.${props.roomId}`) // listen to the shared room
       .listen("MessagePosted", (e) => {
         messages.value.push(e.message);
@@ -165,7 +164,7 @@ function initChat() {
         scrollToBottom(messageContainer.value, true);
       })
       .listen("MessageReacted", (e) => {
-        onReaction(e.reaction);
+        onReaction(e);
       });
   }
 }
@@ -196,8 +195,11 @@ async function selectEmoji(emoji) {
   try {
     const response = await axios.post("/reactions", {
       msg_id: selectedMessage.value.id,
-      user_id: user.id,
       emoji_id: emoji.id,
+    }, {
+      headers: {
+        'X-Socket-ID': Echo.socketId(),
+      }
     });
     const index = selectedMessage.value.reactions.findIndex(
       (item) => item.user_id === user.id
@@ -247,19 +249,25 @@ function scrollToBottom(element, animate = true) {
 
 async function saveMessage() {
   try {
-    if (!inputMessage.value.trim().length) {
+    const trimmedMessage = inputMessage.value.trim();
+    if (!trimmedMessage.length || isSavingMessage.value) {
       return;
     }
+
+    isSavingMessage.value = true;
     // clean data before save to DB
-    const message = DOMPurify.sanitize(inputMessage.value, {}).trim();
     const response = await axios.post("/messages", {
       receiver: props.receiver ? props.receiver.id : undefined,
-      content: message,
-      room: props.receiver ? undefined : props.roomId,
+      content: trimmedMessage,
+      room_id: props.roomId,
+    }, {
+      headers: {
+        'X-Socket-ID': Echo.socketId(),
+      }
     });
     if (props.isPrivate) {
       // send message indicate that user stop typing (incase Throttle function isn't called)
-      $Echo.private(`room.${props.roomId}`).whisper("typing", {
+      Echo.private(`room.${props.roomId}`).whisper("typing", {
         user,
         isTyping: false,
       });
@@ -275,13 +283,19 @@ async function saveMessage() {
     if (error instanceof AxiosError) {
       showToast("Error", error.response.data.message);
     }
+  } finally {
+    isSavingMessage.value = false;
   }
 }
 
 async function getMessages(room, page = 1, loadMore = false) {
   try {
     isLoadingMessages.value = true;
-    const response = await axios.get(`/messages?room=${room}&page=${page}`);
+    const response = await axios.get(`/messages?room_id=${room}&page=${page}`, {
+      headers: {
+        'X-Socket-ID': Echo.socketId(),
+      }
+    });
     messages.value = [...response.data.data.reverse(), ...messages.value];
     currentPage = response.data.current_page;
     lastPage = response.data.last_page;
@@ -314,7 +328,7 @@ function onReaction(reaction) {
   if (messageIndex > -1) {
     const message = messages.value[messageIndex];
     const index = message.reactions.findIndex(
-      (item) => item.user.id === reaction.user.id
+      (item) => item.user_id === reaction.user_id
     );
     if (index > -1) {
       const r = message.reactions[index];
@@ -325,7 +339,7 @@ function onReaction(reaction) {
         r.emoji_id = reaction.emoji_id;
       }
     } else {
-      message.reactions.push({ ...reaction, user: reaction.user });
+      message.reactions.push({ ...reaction, user_id: reaction.user_id });
     }
   }
 }
@@ -336,7 +350,7 @@ function focusPrivateInput() {
     isBeingFocused.value = true;
     privateInputEl.value.focus();
     if (privateHasNewMessage.value) {
-      $Echo.private(`room.${props.roomId}`).whisper("seen", {
+      Echo.private(`room.${props.roomId}`).whisper("seen", {
         user: user,
         seen: true,
         time: new Date(),
@@ -347,7 +361,7 @@ function focusPrivateInput() {
 }
 
 const onInputPrivateChange = throttle(function () {
-  $Echo.private(`room.${props.roomId}`).whisper("typing", {
+  Echo.private(`room.${props.roomId}`).whisper("typing", {
     user,
     isTyping: inputMessage.value.length > 0,
   });
@@ -355,58 +369,32 @@ const onInputPrivateChange = throttle(function () {
 </script>
 
 <template>
-  <div
-    class="card"
-    :class="{
-      'private-message-container bg-white': isPrivate,
-      expand: isChatExpanded,
-    }"
-    ref="rootEl"
-    @click="focusPrivateInput"
-  >
+  <div class="card" :class="{
+    'private-message-container bg-white': isPrivate,
+    expand: isChatExpanded,
+  }" ref="rootEl" @click="focusPrivateInput">
     <!-- @click="EXPANDDDD" -->
-    <div
-      v-if="isPrivate"
-      class="chat-header d-flex"
-      :class="{
-        'blink-anim': privateHasNewMessage && isBeingFocused,
-        'p-2 border-bottom': isChatExpanded,
-        'pt-2 ps-2': !isChatExpanded,
-      }"
-      @click="isChatExpanded = !isChatExpanded"
-    >
+    <div v-if="isPrivate" class="chat-header d-flex" :class="{
+      'blink-anim': privateHasNewMessage && isBeingFocused,
+      'p-2 border-bottom': isChatExpanded,
+      'pt-2 ps-2': !isChatExpanded,
+    }" @click="isChatExpanded = !isChatExpanded">
       <div class="img_cont">
-        <img
-          :src="
-            receiver.id === user.id
-              ? '/images/current_user.jpg'
-              : '/images/other_user.jpg'
-          "
-          class="rounded-circle user_img"
-          style="width: 40px; height: 40px"
-        />
-        <span
-          class="online_icon"
-          style="bottom: -3px"
-          :class="receiver.isOnline ? 'online' : 'offline'"
-        ></span>
+        <img :src="receiver.id === user.id
+          ? '/images/current_user.jpg'
+          : '/images/other_user.jpg'
+          " class="rounded-circle user_img" style="width: 40px; height: 40px" />
+        <span class="online_icon" style="bottom: -3px" :class="receiver.isOnline ? 'online' : 'offline'"></span>
       </div>
       <div class="user_info">
         <span style="color: black">{{
           `${receiver.name}${receiver.id === user.id ? " (You)" : ""}`
-        }}</span>
+          }}</span>
         <!-- <p style="color: black;" class="mb-0">{{ chat.selectedReceiver.name }} left 50 mins ago</p> -->
       </div>
       <div class="color-picker">
-        <i
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          data-bs-title="Message Color"
-          class="fas fa-circle"
-          @click.stop="toggleColorPicker"
-          style="cursor: pointer"
-          :style="{ color: msgColor }"
-        ></i>
+        <i data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Message Color" class="fas fa-circle"
+          @click.stop="toggleColorPicker" style="cursor: pointer" :style="{ color: msgColor }"></i>
       </div>
       <button class="btn-close" @click="$emit('closeChat')">
         <i class="fal fa-times"></i>
@@ -422,61 +410,28 @@ const onInputPrivateChange = throttle(function () {
         </div>
       </div>
     </div>
-    <div
-      class="card-body msg_card_body"
-      ref="messageContainer"
-      v-if="isChatExpanded"
-    >
+    <div class="card-body msg_card_body" ref="messageContainer" v-if="isChatExpanded">
       <div class="loading mb-2 text-center" v-if="isLoadingMessages">
-        <svg
-          version="1.1"
-          id="loader-1"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          x="0px"
-          y="0px"
-          width="40px"
-          height="40px"
-          viewBox="0 0 50 50"
-          style="enable-background: new 0 0 50 50"
-          xml:space="preserve"
-        >
-          <path
-            fill="#FF6700"
+        <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px" y="0px" width="40px" height="40px" viewBox="0 0 50 50" style="enable-background: new 0 0 50 50"
+          xml:space="preserve">
+          <path fill="#FF6700"
             d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"
-            transform="rotate(18.3216 25 25)"
-          >
-            <animateTransform
-              attributeType="xml"
-              attributeName="transform"
-              type="rotate"
-              from="0 25 25"
-              to="360 25 25"
-              dur="0.6s"
-              repeatCount="indefinite"
-            ></animateTransform>
+            transform="rotate(18.3216 25 25)">
+            <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25"
+              dur="0.6s" repeatCount="indefinite"></animateTransform>
           </path>
         </svg>
       </div>
-      <MessageItem
-        v-for="message in messages"
-        :key="message.id"
-        :isPrivate="isPrivate"
-        :message="message"
-        :msgColor="msgColor"
-        @showEmoji="showEmoji"
-        @selectReceiver="$emit('selectReceiver', $event)"
-      />
+      <MessageItem v-for="message in messages" :key="message.id" :isPrivate="isPrivate" :message="message"
+        :msgColor="msgColor" @showEmoji="showEmoji" @selectReceiver="$emit('selectReceiver', $event)" />
       <div v-if="isPrivate">
         <div class="d-flex justify-content-end" v-if="isSeen">
           <i class="font-12px">Seen {{ seenAtFormatted }}</i>
         </div>
         <div class="d-flex justify-content-start mb-4" v-if="isTyping">
           <div class="img_cont_msg">
-            <img
-              src="/images/other_user.jpg"
-              class="rounded-circle user_img_msg"
-            />
+            <img src="/images/other_user.jpg" class="rounded-circle user_img_msg" />
           </div>
           <div class="msg_container">
             <div id="wave">
@@ -489,54 +444,34 @@ const onInputPrivateChange = throttle(function () {
       </div>
     </div>
     <div class="text-input" v-if="isPrivate">
-      <input
-        v-model="inputMessage"
-        v-if="isChatExpanded"
-        id="private_input"
-        type="text"
-        class="w-100"
-        placeholder="Type a message..."
-        @keyup.enter="saveMessage"
-        @input="onInputPrivateChange"
-        ref="privateInputEl"
-        maxlength="2000"
-      />
-      <small class="float-end mt-1 me-1">{{ inputMessage.length }}/2000</small>
+      <input v-model="inputMessage" v-if="isChatExpanded" id="private_input" type="text" class="w-100"
+        placeholder="Type a message..." @keyup.enter="saveMessage" @input="onInputPrivateChange" ref="privateInputEl"
+        maxlength="1000" />
+      <small class="float-end mt-1 me-1">{{ inputMessage.length }}/1000</small>
     </div>
     <div class="card-footer" v-else>
       <div class="input-group">
-        <textarea
-          v-model="inputMessage"
-          name=""
-          class="form-control type_msg"
-          placeholder="Type your message..."
-          @keyup.enter="saveMessage"
-          autofocus
-          maxlength="2000"
-        />
-        <span class="input-group-text send_btn"
-          ><i class="fas fa-location-arrow"></i
-        ></span>
+        <textarea v-model="inputMessage" name="" class="form-control type_msg" placeholder="Type your message..."
+          @keyup.enter="saveMessage" autofocus maxlength="1000" />
+        <span @click="saveMessage" class="input-group-text send_btn">
+          <div style="width: 20px; height: 20px;">
+            <div class="spinner-border text-white" role="status" v-if="isSavingMessage"
+              style="width: inherit; height: inherit;">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <i class="fas fa-location-arrow" v-else>
+            </i>
+          </div>
+        </span>
       </div>
-      <small class="float-end text-white mt-1"
-        >{{ inputMessage.length }}/2000</small
-      >
+      <small class="float-end text-white mt-1">{{ inputMessage.length }}/1000</small>
     </div>
-    <Emoji
-      :emojiCoordinates="emojiCoordinates"
-      :isShow="isShowEmoji"
-      :selectedMessage="selectedMessage"
-      @hideEmoji="hideEmoji"
-      @selectEmoji="selectEmoji"
-    />
+    <Emoji :emojiCoordinates="emojiCoordinates" :isShow="isShowEmoji" :selectedMessage="selectedMessage"
+      @hideEmoji="hideEmoji" @selectEmoji="selectEmoji" />
 
     <Transition name="fade" v-if="isPrivate">
-      <ColorPickerModal
-        v-if="isShowColorPicker"
-        :isShow="isShowColorPicker"
-        @hide="toggleColorPicker"
-        @selectColor="selectColor"
-      />
+      <ColorPickerModal v-if="isShowColorPicker" :isShow="isShowColorPicker" @hide="toggleColorPicker"
+        @selectColor="selectColor" />
     </Transition>
   </div>
 </template>
@@ -547,6 +482,7 @@ const onInputPrivateChange = throttle(function () {
   height: 500px;
   border-radius: 15px !important;
   background-color: rgba(0, 0, 0, 0.4) !important;
+
   &.bg-white {
     background-color: white !important;
   }
@@ -689,6 +625,7 @@ const onInputPrivateChange = throttle(function () {
     position: absolute;
     right: 45px;
     top: 17px;
+
     i {
       font-size: 22px;
     }

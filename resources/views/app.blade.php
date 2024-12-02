@@ -1,11 +1,23 @@
-@extends('layouts.app-auth')
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="Mai Trung Duc">
+        <meta name="description" content="Realtime chat app using Laravel, VueJS, Redis, Laravel Echo, SocketIO">
+        <meta name="keywords" content="Realtime chat app, Laravel, VueJS, Laravel Echo, Redis, SocketIO">
 
-@section('content')
-@if (env('APP_IS_DOCKER') == 'true')
-<script src="/socket.io/socket.io.js"></script>
-@else
-<script src="http://localhost:6001/socket.io/socket.io.js"></script>
-@endif
+        <title>Realtime Chat | Laravel, VueJS, Redis, Laravel Echo, SocketIO</title>
 
-<script>window.__app__ = @json($data)</script>
-@endsection
+        <link rel="stylesheet" href="{{ asset('css/font_awesome/all.min.css') }}">
+        <link rel="icon favicon" href="{{ asset('images/favicon.png') }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    </head>
+    <body>
+        <div id="app" class="h-100"></div>
+
+        <script>window.__app__ = @json($data)</script>
+    </body>
+</html>

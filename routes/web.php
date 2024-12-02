@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\Route;
 */
 Auth::routes();
 
-Route::get('/', [App\Http\Controllers\AppController::class, 'index'])->middleware('auth');
-
-Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->middleware('auth');
-
-Route::post('/messages', [App\Http\Controllers\MessageController::class, 'store'])->middleware('auth');
-
-Route::post('/reactions', [App\Http\Controllers\MessageController::class, 'react'])->middleware('auth');
-
-Route::get('/{any}', [App\Http\Controllers\AppController::class, 'index'])->where('any', '.*')->middleware('auth'); // catch all routes or else it will return 404 with Vue router in history mode
+Route::middleware('auth')->group(function () {
+  Route::get('/', [App\Http\Controllers\AppController::class, 'index']);
+  Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index']);
+  Route::post('/messages', [App\Http\Controllers\MessageController::class, 'store']);
+  Route::post('/reactions', [App\Http\Controllers\MessageController::class, 'react']);
+  Route::post('/start_chat', [App\Http\Controllers\MessageController::class, 'startChat']);
+  
+  // Catch-all route (for Vue Router in history mode)
+  Route::get('/{any}', [App\Http\Controllers\AppController::class, 'index'])->where('any', '.*');
+});

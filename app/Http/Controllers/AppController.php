@@ -12,7 +12,7 @@ class AppController extends Controller
     public function index () {
         $data = [
             'user' => Auth::user(),
-            'rooms' => Chatroom::all(),
+            'rooms' => Chatroom::where('private_room_id', null)->get(),
             'emojis' => Emoji::all(),
             'appName' => config('app.name'),
             'confettiWords' => env('APP_CONFETTI_WORDS')

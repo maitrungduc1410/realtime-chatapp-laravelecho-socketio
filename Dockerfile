@@ -1,37 +1,24 @@
-# Set master image
-FROM php:8.3-fpm-alpine
-
-LABEL maintainer="Mai Trung Duc (maitrungduc1410@gmail.com)"
-
-# Set working directory
+FROM php:8.3.9-fpm-alpine3.20 AS base
 WORKDIR /app
-
-# Install Additional dependencies
-RUN apk update && apk add --no-cache supervisor
-
-# Add and Enable PHP-PDO Extenstions
-RUN docker-php-ext-install pdo pdo_mysql
-RUN docker-php-ext-enable pdo_mysql
-RUN docker-php-ext-install pcntl
-
-# Remove Cache
-RUN rm -rf /var/cache/apk/*
-
-# Use the default production configuration ($PHP_INI_DIR is variable already set by the default image)
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-#-----------SUPERVISOR------------
-COPY .docker/root/supervisord.conf /etc/supervisord.conf
-
-# Task scheduling
-RUN echo "* * * * * php /app/artisan schedule:run >> /dev/null 2>&1" >> /etc/crontabs/root
-
-# Laravel horizon
-# Note that Horizon already includes worker
-# Otherwise we need to run queue:work manually to spawn workers
-COPY .docker/root/supervisor.d /etc/supervisor.d
-
-# Copy existing application directory permissions
 COPY . .
+# Add and Enable PHP-PDO Extenstions
+RUN docker-php-ext-install pdo pdo_mysql pcntl
+RUN docker-php-ext-enable pdo_mysql
 
-CMD supervisord -n -c /etc/supervisord.conf
+FROM base AS reverb
+CMD ["php", "artisan", "reverb:start"]
+
+FROM base AS workers
+CMD ["php", "artisan", "queue:work"]
+
+FROM base AS nonroot
+RUN addgroup -g 1000 myusergroup
+RUN adduser -D -u 1000 myuser -G myusergroup
+RUN chown -R myuser:myusergroup .
+USER myuser
+
+FROM base AS reverb-nonroot
+CMD ["php", "artisan", "reverb:start"]
+
+FROM base AS workers-nonroot
+CMD ["php", "artisan", "queue:work"]

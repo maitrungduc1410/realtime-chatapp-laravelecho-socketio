@@ -2,6 +2,8 @@
 import { ref, watch, provide } from "vue";
 import Footer from "./components/Footer.vue";
 import { useRoute } from "vue-router";
+
+
 import { Toast } from "bootstrap";
 // provide this for all children
 // globalProperties doesn't help here since in children we're accessing in <script>
@@ -10,7 +12,6 @@ provide("$user", window.__app__.user);
 provide("$emojis", window.__app__.emojis);
 provide("$appName", window.__app__.appName);
 provide("$confettiWords", window.__app__.confettiWords);
-provide("$Echo", window.Echo);
 provide("$showToast", showToast);
 
 const csrfToken = ref(
@@ -63,13 +64,6 @@ function showToast(title, message) {
             </h2>
           </router-link>
           <div>
-            <a
-              class="btn btn-link fs-4 link-underline-opacity-0 text-light link-body-emphasis link-underline-opacity-100-hover"
-              href="/horizon"
-              target="_blank"
-            >
-              Horizon
-            </a>
             <a
               class="btn btn-link fs-4 link-underline-opacity-0 text-light link-body-emphasis link-underline-opacity-100-hover"
               href="/telescope"

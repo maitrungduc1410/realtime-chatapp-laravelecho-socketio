@@ -16,10 +16,9 @@ class MessagePosted implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+
     /**
      * Create a new event instance.
-     *
-     * @return void
      */
     public function __construct(Message $message)
     {
@@ -33,13 +32,12 @@ class MessagePosted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        if (strpos($this->message->room, '__') !== false) { // must use !== false
+        if ($this->message->chatroom->private_room_id) {
             return [
-                new PrivateChannel('room.'.$this->message->receiver),
-                new PrivateChannel('room.'.$this->message->room)
+                new PrivateChannel('room.'.$this->message->chatroom->id)
             ];
-        } else {
-            return [new PresenceChannel('room.'.$this->message->room)];
         }
+
+        return [new PresenceChannel('room.'.$this->message->room_id)];
     }
 }
