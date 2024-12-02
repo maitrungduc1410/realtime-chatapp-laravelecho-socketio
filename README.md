@@ -78,6 +78,9 @@ Then build + start all services:
 docker compose up -d --build
 ```
 
+> [!TIP]
+> If you see this error "services.reverb.depends_on.db Additional property restart is not allowed". That means you're using older version of Docker Engine, you either need to remove that option in `docker-compose.yml` or upgrade to newer version of the engine
+
 Next, migrate+seed database:
 ```shell
 docker compose exec app php artisan migrate --seed
@@ -151,6 +154,9 @@ Then build + start all services:
 ```
 docker compose -f docker-compose.non-root.yml up -d --build
 ```
+
+> [!TIP]
+> If you see this error "services.reverb.depends_on.db Additional property restart is not allowed". That means you're using older version of Docker Engine, you either need to remove that option in `docker-compose.yml` or upgrade to newer version of the engine
 
 Next, migrate+seed database:
 ```shell
