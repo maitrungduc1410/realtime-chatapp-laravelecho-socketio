@@ -43,9 +43,9 @@ services:
     volumes:
       - ./:/app
     depends_on:
-      db:
-        condition: service_healthy # Wait for the db service to be healthy (using the healthcheck defined below)
-        restart: true # Restart the service if db stops
+      reverb:
+        condition: service_started
+        restart: true # Restart the service if reverb stops
     restart: always
 
   db:
@@ -73,8 +73,9 @@ services:
       - ./:/app
     entrypoint: ["sh", "-c", "while true; do php artisan schedule:run; sleep 60; done"]
     depends_on:
-      - reverb
-      - workers
+      db:
+        condition: service_healthy
+        restart: true
     restart: always
 
   phpmyadmin:

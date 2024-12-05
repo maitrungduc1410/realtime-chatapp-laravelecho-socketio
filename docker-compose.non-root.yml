@@ -45,9 +45,9 @@ services:
     volumes:
       - ./:/app
     depends_on:
-      db:
-        condition: service_healthy # Wait for the db service to be healthy (using the healthcheck defined below)
-        restart: true # Restart the service if db stops
+      reverb:
+        condition: service_started
+        restart: true # Restart the service if reverb stops
     restart: always
 
   db:
