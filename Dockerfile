@@ -17,8 +17,8 @@ RUN adduser -D -u 1000 myuser -G myusergroup
 RUN chown -R myuser:myusergroup .
 USER myuser
 
-FROM base AS reverb-nonroot
+FROM nonroot AS reverb-nonroot
 CMD ["php", "artisan", "reverb:start"]
 
-FROM base AS workers-nonroot
+FROM nonroot AS workers-nonroot
 CMD ["php", "artisan", "queue:work"]
